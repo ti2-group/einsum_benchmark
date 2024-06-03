@@ -1,0 +1,33 @@
+[project]
+name = "einsum_benchmark"
+version = "0.1.0"
+description = "Wrapper package for the einsum benchmark dataset and code to create new instances of the various types used in the benchmark"
+authors = [
+    { name = "Christoph Staudt", email = "christoph.staudt@uni-jena.de" },
+    { name = "Mark Blacher", email = "mark.blacher@uni-jena.de" },
+    { name = "Maurice Wenig", email = "maurice.wenig@uni-jena.de" },
+    { name = "Niklas Merk", email = "niklas.merk@uni-jena.de" },
+]
+dependencies = [
+    "numpy>=1.26.4",
+    "opt-einsum>=3.3.0",
+    "networkx>=3.3",
+    "quimb>=1.8.1",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+path = [
+    "kahypar>=1.3.5",
+    "cython>=3.0.10",
+    "optuna>=3.6.1",
+]
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
