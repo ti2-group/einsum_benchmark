@@ -11,7 +11,10 @@ from os.path import join
 import os
 from dataclasses import dataclass, field
 from typing import Hashable, Optional, Union, List, Tuple, Dict, Literal
-import numpy as np
+from .runtime import get_ops_and_max_size, to_annotated_ssa_path
+from cgreedy.alg import CGreedy
+
+optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 Inputs = List[List[Hashable]]
 Output = List[Hashable]
@@ -20,18 +23,11 @@ Path = List[Tuple[int, ...]]
 
 dirname = os.path.dirname(__file__)
 
-os.system(f"CC=gcc CXX=g++ cythonize -i {os.path.join(dirname, 'con/alg.pyx')}")
-from .con.alg import CGreedy
-
 
 def safe_log2(x):
     if x < 1:
         return 0
     return math.log2(x)
-
-
-def log10_1p(x):
-    return np.log1p(x) / np.log(10)
 
 
 def get_node_weight_by_log_size(size_dict, node):
@@ -311,8 +307,6 @@ def hybrid_hypercut_greedy(
 
     stack = [tensor_network]
     path = []
-    flops = 0
-    max_size = 0
     last_id = len(inputs) - 1
     network_by_name = {tensor_network.name: tensor_network}
     while stack:
@@ -321,8 +315,6 @@ def hybrid_hypercut_greedy(
             sub_path, sub_flops, sub_size = greedy_optimizer(tn, minimize=minimize)
             if isinstance(sub_path, tuple):
                 sub_path = [sub_path]
-            max_size = max(max_size, sub_size)
-            flops += log10_1p(np.float_power(10, (sub_flops - flops)))
             last_id = extend_path(tn, sub_path, last_id, path)
             tn._ssa_id = last_id
             while tn.parent_name and len(tn.parent_name) < len(tn.name):
@@ -339,6 +331,18 @@ def hybrid_hypercut_greedy(
         stack.append(child_sub_network)
         network_by_name[child_sub_network.name] = child_sub_network
 
+    format_string = (
+        ",".join(["".join(input) for input in inputs]) + "->" + "".join(output)
+    )
+
+    annottated_ssa_path = to_annotated_ssa_path(
+        format_string,
+        path,
+        is_ascii=False,
+    )
+    flops, max_size = get_ops_and_max_size(
+        format_string, annottated_ssa_path, size_dict=size_dict
+    )
     return path, flops, max_size
 
 
@@ -349,21 +353,26 @@ class TrackBestPathCallback:
         self.best_flops = None
         self.minimize = minimize
 
+    def update_best(self, trial):
+        self.best_path = trial.user_attrs["path"]
+        self.best_size = trial.user_attrs["size"]
+        self.best_flops = trial.user_attrs["flops"]
+
     def __call__(
         self, study: optuna.study.Study, trial: optuna.trial.FrozenTrial
     ) -> None:
-        if self.minimize == "flops":
-            current_best = self.best_flops
-            current_value = trial.user_attrs["flops"]
+        if self.best_path is None:
+            self.update_best(trial)
+        elif self.minimize == "flops":
+            if trial.user_attrs["flops"] < self.best_flops:
+                self.update_best(trial)
         else:
-            current_best = self.best_size
-            current_value = trial.user_attrs["size"]
-
-        if self.best_path is None or current_value < current_best:
-            print("====> found new best path", current_value, current_best)
-            self.best_path = trial.user_attrs["path"]
-            self.best_size = trial.user_attrs["size"]
-            self.best_flops = trial.user_attrs["flops"]
+            if (
+                trial.user_attrs["size"] < self.best_size
+                or trial.user_attrs["size"] == self.best_size
+                and trial.user_attrs["flops"] < self.best_flops
+            ):
+                self.update_best(trial)
 
         trial.set_user_attr("path", None)
         trial.set_user_attr("flops", None)
@@ -387,15 +396,23 @@ def hyper_optimized_hhg(
         imbalance = trial.suggest_float("imbalance", 0.01, 0.5)
         weight_nodes = trial.suggest_categorical("weight_nodes", ["const", "log"])
         cutoff = trial.suggest_int("cutoff", 10, min(len(inputs), 1500))
-        path, flops, size = hybrid_hypercut_greedy(
-            inputs,
-            output,
-            size_dict,
-            imbalance=imbalance,
-            weight_nodes=weight_nodes,
-            minimize=minimize,
-            cutoff=cutoff,
-        )
+        try:
+            path, flops, size = hybrid_hypercut_greedy(
+                inputs,
+                output,
+                size_dict,
+                imbalance=imbalance,
+                weight_nodes=weight_nodes,
+                minimize=minimize,
+                cutoff=cutoff,
+            )
+        except Exception as e:
+            # Handle the exception here
+            print(f"An error occurred 2: {str(e)}")
+            trial.set_user_attr("path", [])
+            trial.set_user_attr("flops", math.inf)
+            trial.set_user_attr("size", math.inf)
+            return math.inf
         trial.set_user_attr("path", path)
         trial.set_user_attr("flops", flops)
         trial.set_user_attr("size", size)

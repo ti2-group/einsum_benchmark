@@ -1,6 +1,24 @@
 import importlib.util
 import subprocess
 from typing import Optional, Literal, List, Hashable, Dict, Tuple
+from .runtime import (
+    jensum,
+    jensum_meta,
+    to_annotated_ssa_path,
+    linear_path_runtime_meta,
+    get_ops_and_max_size,
+)
+from .info import compute_meta_info_of_einsum_instance
+
+__all__ = [
+    "find_path",
+    "jensum",
+    "jensum_meta",
+    "to_annotated_ssa_path",
+    "linear_path_runtime_meta",
+    "get_ops_and_max_size",
+    "compute_meta_info_of_einsum_instance",
+]
 
 Inputs = List[List[Hashable]]
 Output = List[Hashable]
@@ -8,10 +26,9 @@ SizeDict = Dict[Hashable, int]
 Path = List[Tuple[int, ...]]
 
 
-def find(
-    inputs: Inputs,
-    output: Output,
-    size_dict: SizeDict,
+def find_path(
+    format_string: str,
+    *tensors,
     minimize: Literal["flops", "size"],
     n_trials: int = 128,
     n_jobs: int = 10,
@@ -19,14 +36,10 @@ def find(
     timeout: Optional[int] = None,
 ):
     if importlib.util.find_spec("kahypar") is None:
-        print(
-            "kahypar is not installed. Please install kahypar, cython and g++ to use the path finder"
-        )
+        print("kahypar is not installed. Please install kahypar and cgreedy")
         return None
-    if importlib.util.find_spec("cython") is None:
-        print(
-            "Cython is not installed. Please install Cython, and g++ to compile the extension."
-        )
+    if importlib.util.find_spec("cgreedy") is None:
+        print("cgreedy is not installed")
         return None
 
     try:
@@ -49,6 +62,17 @@ def find(
         return None
 
     from . import path_finder
+
+    inputs, output = format_string.split("->")
+    inputs = inputs.split(",")
+
+    shapes = [tensor.shape for tensor in tensors]
+    size_dict = {}
+    for input, shape in zip(inputs, shapes):
+        for char, size in zip(input, shape):
+            if char in size_dict:
+                assert size_dict[char] == size
+            size_dict[char] = size
 
     return path_finder.hyper_optimized_hhg(
         inputs,
