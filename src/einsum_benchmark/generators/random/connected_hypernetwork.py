@@ -1,13 +1,13 @@
 from typing import Union, Optional, Tuple, Dict, Collection
 from numpy.random import default_rng
-#from opt_einsum.paths import _find_disconnected_subgraphs #NOTE: only for testing
 
-from generators.util import get_symbol
+
+from .util import get_symbol
 
 PathType = Collection[Tuple[int, ...]]
 
+
 def random_tensor_hyper_network(
-    
     number_of_tensors: int,
     regularity: float,
     max_tensor_order: int = None,
@@ -24,8 +24,7 @@ def random_tensor_hyper_network(
     max_axis_size: int = 10,
     seed: Optional[int] = None,
     return_size_dict: bool = False,
-    ) -> Union[Tuple[str, PathType, Dict[str, int]], Tuple[str, PathType]]:
-
+) -> Union[Tuple[str, PathType, Dict[str, int]], Tuple[str, PathType]]:
     """Generate a random contraction and shapes.
 
     Parameters
@@ -92,15 +91,15 @@ def random_tensor_hyper_network(
     'bdca,abhcdg,cbmd,cfd,ed,e,figj,gl,h,nik->jnmkl'
 
     >>> shapes
-    [(2, 2, 2, 2), 
-    (2, 2, 4, 2, 2, 3), 
-    (2, 2, 4, 2), 
-    (2, 2, 2), 
-    (2, 2), 
-    (2,), 
-    (2, 4, 3, 3), 
-    (3, 2), 
-    (4,), 
+    [(2, 2, 2, 2),
+    (2, 2, 4, 2, 2, 3),
+    (2, 2, 4, 2),
+    (2, 2, 2),
+    (2, 2),
+    (2,),
+    (2, 4, 3, 3),
+    (3, 2),
+    (4,),
     (3, 4, 3)]
 
     >>> size_dict
@@ -108,17 +107,17 @@ def random_tensor_hyper_network(
 
     Tensor Hyper Networks with self edges (of higher order), single summation indices, output indices of higher order and a global dimension
     >>> eq, shapes = random_tensor_hyper_network(
-        number_of_tensors = 10, 
-        regularity = 2.5, 
-        max_tensor_order = 5, 
+        number_of_tensors = 10,
+        regularity = 2.5,
+        max_tensor_order = 5,
         max_edge_order = 6,
-        number_of_output_indices = 5, 
+        number_of_output_indices = 5,
         max_output_index_order = 3,
-        number_of_self_edges = 4, 
-        max_self_edge_order = 3, 
-        number_of_single_summation_indices = 3, 
+        number_of_self_edges = 4,
+        max_self_edge_order = 3,
+        number_of_single_summation_indices = 3,
         global_dim = True,
-        min_axis_size = 2, 
+        min_axis_size = 2,
         max_axis_size = 4,
         seed = 12345
     )
@@ -126,114 +125,168 @@ def random_tensor_hyper_network(
     'caxpp,afxeb,nbkxn,jdkxc,tdqxv,hxgre,jlxfi,xsgmm,howxo,xuijl->utvwx'
 
     >>> shapes
-    [(2, 4, 4, 3, 3), 
-    (4, 3, 4, 3, 3), 
-    (3, 3, 2, 4, 3), 
-    (2, 2, 2, 4, 2), 
-    (2, 2, 2, 4, 3), 
-    (4, 4, 2, 3, 3), 
-    (2, 2, 4, 3, 3), 
-    (4, 3, 2, 3, 3), 
-    (4, 2, 2, 4, 2), 
+    [(2, 4, 4, 3, 3),
+    (4, 3, 4, 3, 3),
+    (3, 3, 2, 4, 3),
+    (2, 2, 2, 4, 2),
+    (2, 2, 2, 4, 3),
+    (4, 4, 2, 3, 3),
+    (2, 2, 4, 3, 3),
+    (4, 3, 2, 3, 3),
+    (4, 2, 2, 4, 2),
     (4, 2, 3, 2, 2)]
 
     Tensor Hyper Networks as above but with diagonals in hyper edges and output indices
     >>> eq, shapes = random_tensor_hyper_network(
-        number_of_tensors = 10, 
-        regularity = 3.0, 
-        max_tensor_order = 10, 
+        number_of_tensors = 10,
+        regularity = 3.0,
+        max_tensor_order = 10,
         max_edge_order = 3,
         diagonals_in_hyper_edges = True,
-        number_of_output_indices = 5, 
+        number_of_output_indices = 5,
         max_output_index_order = 3,
-        diagonals_in_output_indices = True, 
-        number_of_self_edges = 4, 
-        max_self_edge_order = 3, 
-        number_of_single_summation_indices = 3, 
+        diagonals_in_output_indices = True,
+        number_of_self_edges = 4,
+        max_self_edge_order = 3,
+        number_of_single_summation_indices = 3,
         global_dim = True,
-        min_axis_size = 2, 
-        max_axis_size = 4, 
+        min_axis_size = 2,
+        max_axis_size = 4,
         seed = 12345
     )
     >>> eq
     'cabxk,gkegax,wldxbrb,ctoxdfo,xvdlv,weehx,nfnkx,spgpixqu,xjimhm,ijx->uvwtx'
 
     >>> shapes
-    [(3, 2, 4, 3, 2), 
-    (2, 2, 3, 2, 2, 3), 
-    (4, 4, 3, 3, 4, 3, 4), 
-    (3, 4, 3, 3, 3, 3, 3), 
-    (3, 3, 3, 4, 3), 
-    (4, 3, 3, 2, 3), 
-    (4, 3, 4, 2, 3), 
-    (3, 3, 2, 3, 2, 3, 2, 2), 
-    (3, 4, 2, 2, 2, 2), 
+    [(3, 2, 4, 3, 2),
+    (2, 2, 3, 2, 2, 3),
+    (4, 4, 3, 3, 4, 3, 4),
+    (3, 4, 3, 3, 3, 3, 3),
+    (3, 3, 3, 4, 3),
+    (4, 3, 3, 2, 3),
+    (4, 3, 4, 2, 3),
+    (3, 3, 2, 3, 2, 3, 2, 2),
+    (3, 4, 2, 2, 2, 2),
     (2, 4, 3)]
     """
 
     # handle inputs
-    assert number_of_tensors >= 0, f"number_of_tensors {number_of_tensors} has to be non-negative."
+    assert (
+        number_of_tensors >= 0
+    ), f"number_of_tensors {number_of_tensors} has to be non-negative."
     assert regularity >= 0, f"regularity {regularity} has to be non-negative."
-    assert max_tensor_order >= 0, f"max_tensor_order {max_tensor_order} has to be non-negative."
-    assert max_edge_order >= 0, f"max_edge_order {max_edge_order} has to be non-negative."
-    assert number_of_output_indices >= 0, f"number_of_output_indices {number_of_output_indices} has to be non-negative."
+    assert (
+        max_tensor_order >= 0
+    ), f"max_tensor_order {max_tensor_order} has to be non-negative."
+    assert (
+        max_edge_order >= 0
+    ), f"max_edge_order {max_edge_order} has to be non-negative."
+    assert (
+        number_of_output_indices >= 0
+    ), f"number_of_output_indices {number_of_output_indices} has to be non-negative."
     assert min_axis_size >= 0, f"min_axis_size {min_axis_size} has to be non-negative."
     assert max_axis_size >= 0, f"max_axis_size {max_axis_size} has to be non-negative."
 
     # handle 'None' in tensors
     if max_tensor_order == None:
-        max_tensor_order = int((number_of_tensors - 1) * regularity + number_of_self_edges * max_self_edge_order + number_of_output_indices * max_output_index_order + number_of_single_summation_indices) # in the worst case, everything gets attached to one tensor
+        max_tensor_order = int(
+            (number_of_tensors - 1) * regularity
+            + number_of_self_edges * max_self_edge_order
+            + number_of_output_indices * max_output_index_order
+            + number_of_single_summation_indices
+        )  # in the worst case, everything gets attached to one tensor
 
     # check if tensors make sense
-    assert regularity <= max_tensor_order, 'regularity cannot be higher than chosen max_tensor_order.'
+    assert (
+        regularity <= max_tensor_order
+    ), "regularity cannot be higher than chosen max_tensor_order."
 
     # handle global dim
-    assert (number_of_output_indices > 0) or not global_dim, f"If a global dimension is to be used, the number of output indices has to be at least 1."
-    number_of_output_indices -= 1 * global_dim # reserve one output index for global dimension
-    max_tensor_order -= 1 * global_dim # reserve one spot for global dim in every tensor 
+    assert (
+        number_of_output_indices > 0
+    ) or not global_dim, f"If a global dimension is to be used, the number of output indices has to be at least 1."
+    number_of_output_indices -= (
+        1 * global_dim
+    )  # reserve one output index for global dimension
+    max_tensor_order -= (
+        1 * global_dim
+    )  # reserve one spot for global dim in every tensor
 
     # check if max_tensor_order suffices to fit all connecting edge, output indices, self edges and single summation indices
-    assert max_tensor_order * number_of_tensors >= int(regularity * number_of_tensors) + number_of_output_indices + number_of_self_edges * 2 + number_of_single_summation_indices, f"the (max_tensor_order - 1 * global_dim) * number_of_tensors =  {max_tensor_order * number_of_tensors} is not high enough to fit all {int(regularity*number_of_tensors)} connecting indices, {number_of_output_indices} output_indices, {2 * number_of_self_edges} indices of self_edges and {number_of_single_summation_indices} single summation indices." 
+    assert (
+        max_tensor_order * number_of_tensors
+        >= int(regularity * number_of_tensors)
+        + number_of_output_indices
+        + number_of_self_edges * 2
+        + number_of_single_summation_indices
+    ), f"the (max_tensor_order - 1 * global_dim) * number_of_tensors =  {max_tensor_order * number_of_tensors} is not high enough to fit all {int(regularity*number_of_tensors)} connecting indices, {number_of_output_indices} output_indices, {2 * number_of_self_edges} indices of self_edges and {number_of_single_summation_indices} single summation indices."
 
     # create rng
     if seed is None:
         rng = default_rng()
-    else: 
+    else:
         rng = default_rng(seed)
-    
-    number_of_connecting_indices = int(number_of_tensors * regularity) # how many indices make up the underlying hypergraph. To this hyperedges contribute += order, These do not contribute: self edges, summation/single contr. and out edges
-    number_of_spaces = number_of_tensors * max_tensor_order # number of spaces (total number of indices that can be placed in tensors such that the max order is satisfied) that are not filled and not reserved
-    number_of_reserved_spaces = number_of_connecting_indices + 2 * number_of_self_edges + number_of_single_summation_indices + number_of_output_indices # how many spaces are at least neccessary to fulfil the given specifications 
+
+    number_of_connecting_indices = int(
+        number_of_tensors * regularity
+    )  # how many indices make up the underlying hypergraph. To this hyperedges contribute += order, These do not contribute: self edges, summation/single contr. and out edges
+    number_of_spaces = (
+        number_of_tensors * max_tensor_order
+    )  # number of spaces (total number of indices that can be placed in tensors such that the max order is satisfied) that are not filled and not reserved
+    number_of_reserved_spaces = (
+        number_of_connecting_indices
+        + 2 * number_of_self_edges
+        + number_of_single_summation_indices
+        + number_of_output_indices
+    )  # how many spaces are at least neccessary to fulfil the given specifications
     non_reserved_spaces = number_of_spaces - number_of_reserved_spaces
-    
-    number_of_connecting_indices_to_do = number_of_connecting_indices # keep track of how may connections are left to do
+
+    number_of_connecting_indices_to_do = (
+        number_of_connecting_indices  # keep track of how may connections are left to do
+    )
     tensors = []
     output = ""
-    not_max_order_tensors = [] # keeps track of existing tensors to which indices can be added to
-    free_spaces_in_not_max_order_tensors = 0 # tracks how many spaces are free in not_max_order_tensors
+    not_max_order_tensors = (
+        []
+    )  # keeps track of existing tensors to which indices can be added to
+    free_spaces_in_not_max_order_tensors = (
+        0  # tracks how many spaces are free in not_max_order_tensors
+    )
 
     # ADD ALL TENSORS such that they are connected to the graph with (hyper-)edges
 
     # create start tensors
     tensors.append(get_symbol(0))
     tensors.append(get_symbol(0))
-    number_of_connecting_indices_to_do -= 2 # placed two indices
+    number_of_connecting_indices_to_do -= 2  # placed two indices
     not_max_order_tensors.append(0)
     not_max_order_tensors.append(1)
-    number_of_reserved_spaces -= 2 # placed two indices
-    free_spaces_in_not_max_order_tensors += 2 * (max_tensor_order - 1) # one index in both tensors
+    number_of_reserved_spaces -= 2  # placed two indices
+    free_spaces_in_not_max_order_tensors += 2 * (
+        max_tensor_order - 1
+    )  # one index in both tensors
 
     for tensor_number in range(2, number_of_tensors):
         index = get_symbol(tensor_number - 1)
 
         # determine order of hyperedge
         number_of_tensors_to_do = number_of_tensors - tensor_number
-        
+
         # determine max order
         if diagonals_in_hyper_edges:
-            max_order = min(free_spaces_in_not_max_order_tensors + max_tensor_order, max_edge_order, number_of_connecting_indices_to_do - 2 * (number_of_tensors_to_do - 1), 2 + non_reserved_spaces) # can only connect as many times to not_max_order_tensors, as there are free spaces, need to respect the max edge order, how many connections we can still do and how many spaces are not reserved
+            max_order = min(
+                free_spaces_in_not_max_order_tensors + max_tensor_order,
+                max_edge_order,
+                number_of_connecting_indices_to_do - 2 * (number_of_tensors_to_do - 1),
+                2 + non_reserved_spaces,
+            )  # can only connect as many times to not_max_order_tensors, as there are free spaces, need to respect the max edge order, how many connections we can still do and how many spaces are not reserved
         else:
-            max_order = min(len(not_max_order_tensors) + 1, max_edge_order, number_of_connecting_indices_to_do - 2 * (number_of_tensors_to_do - 1), 2 + non_reserved_spaces) # we can only connect to existing tensors which do not have the max order, respect the max edge order, need to make sure we have enough indices left for the other tensors and need to respect the number of not reserved spaces
+            max_order = min(
+                len(not_max_order_tensors) + 1,
+                max_edge_order,
+                number_of_connecting_indices_to_do - 2 * (number_of_tensors_to_do - 1),
+                2 + non_reserved_spaces,
+            )  # we can only connect to existing tensors which do not have the max order, respect the max edge order, need to make sure we have enough indices left for the other tensors and need to respect the number of not reserved spaces
 
         order = rng.integers(2, max_order + 1)
 
@@ -245,14 +298,18 @@ def random_tensor_hyper_network(
                     tensors.append(index)
                     not_max_order_tensors.append(len(tensors) - 1)
                     continue
-                tensor = rng.choice(not_max_order_tensors) #NOTE: we can get diagonals over one tensor in a hyperedge
+                tensor = rng.choice(
+                    not_max_order_tensors
+                )  # NOTE: we can get diagonals over one tensor in a hyperedge
                 tensors[tensor] += index
                 # check if max order is reached
                 if len(tensors[tensor]) == max_tensor_order:
                     not_max_order_tensors.remove(tensor)
         else:
             # connect to other tensors
-            connect_to_tensors = rng.choice(not_max_order_tensors, size = order - 1, replace = False, shuffle = False)
+            connect_to_tensors = rng.choice(
+                not_max_order_tensors, size=order - 1, replace=False, shuffle=False
+            )
             for tensor in connect_to_tensors:
                 tensors[tensor] += index
                 # check if max order is reached
@@ -261,15 +318,21 @@ def random_tensor_hyper_network(
             # connect to new tensor
             tensors.append(index)
             not_max_order_tensors.append(len(tensors) - 1)
-        
+
         # update tracking
         number_of_connecting_indices_to_do -= order
-        #number_of_reserved_spaces -= order # took care of one tensor
-        #number_of_spaces -= order
-        non_reserved_spaces -= (order - 2) # those spaces were taken in addition to neccessary/reserved spaces
-        free_spaces_in_not_max_order_tensors += max_tensor_order - order # added one new tensor but filled order spaces
+        # number_of_reserved_spaces -= order # took care of one tensor
+        # number_of_spaces -= order
+        non_reserved_spaces -= (
+            order - 2
+        )  # those spaces were taken in addition to neccessary/reserved spaces
+        free_spaces_in_not_max_order_tensors += (
+            max_tensor_order - order
+        )  # added one new tensor but filled order spaces
 
-    assert len(tensors) == number_of_tensors, f"The number of created tensors/tensors = {len(tensors)} does not match number_of_tensors = {number_of_tensors}."
+    assert (
+        len(tensors) == number_of_tensors
+    ), f"The number of created tensors/tensors = {len(tensors)} does not match number_of_tensors = {number_of_tensors}."
 
     # REMAINING CONNECTIONS between tensors
     number_of_used_indices = number_of_tensors - 1
@@ -279,9 +342,17 @@ def random_tensor_hyper_network(
 
         # determine order of hyperedge:
         if diagonals_in_hyper_edges:
-            max_order = min(free_spaces_in_not_max_order_tensors, max_edge_order, number_of_connecting_indices_to_do) # can only fill free spaces in tensors that do not have max order, need to respect the max edge order, how many connections we can still do and how many spaces are not reserved
+            max_order = min(
+                free_spaces_in_not_max_order_tensors,
+                max_edge_order,
+                number_of_connecting_indices_to_do,
+            )  # can only fill free spaces in tensors that do not have max order, need to respect the max edge order, how many connections we can still do and how many spaces are not reserved
         else:
-            max_order = min(len(not_max_order_tensors), max_edge_order, number_of_connecting_indices_to_do) # can only connect to tensors that do not have max order, need to respect the max edge order, how many connections we can still do and how many spaces are not reserved
+            max_order = min(
+                len(not_max_order_tensors),
+                max_edge_order,
+                number_of_connecting_indices_to_do,
+            )  # can only connect to tensors that do not have max order, need to respect the max edge order, how many connections we can still do and how many spaces are not reserved
 
         order = rng.integers(2, max_order + 1)
         # make sure that number_of_connecting indices to do is not left at 1
@@ -289,8 +360,10 @@ def random_tensor_hyper_network(
             order = rng.integers(2, max_order + 1)
 
         # determine tensors to connect to
-        if order == 2: # no pure self edges here
-            connect_to_tensors = rng.choice(not_max_order_tensors, size = 2, replace = False, shuffle = False)
+        if order == 2:  # no pure self edges here
+            connect_to_tensors = rng.choice(
+                not_max_order_tensors, size=2, replace=False, shuffle=False
+            )
             for tensor in connect_to_tensors:
                 tensors[tensor] += index
                 # check if max order is reached
@@ -298,14 +371,18 @@ def random_tensor_hyper_network(
                     not_max_order_tensors.remove(tensor)
         elif diagonals_in_hyper_edges:
             for _ in range(order):
-                tensor = rng.choice(not_max_order_tensors) #NOTE: we can get diagonals over one tensor in a hyperedge
+                tensor = rng.choice(
+                    not_max_order_tensors
+                )  # NOTE: we can get diagonals over one tensor in a hyperedge
                 tensors[tensor] += index
                 # check if max order is reached
                 if len(tensors[tensor]) == max_tensor_order:
                     not_max_order_tensors.remove(tensor)
         else:
             # connect to tensors
-            connect_to_tensors = rng.choice(not_max_order_tensors, size = order, replace = False, shuffle = False)
+            connect_to_tensors = rng.choice(
+                not_max_order_tensors, size=order, replace=False, shuffle=False
+            )
             for tensor in connect_to_tensors:
                 tensors[tensor] += index
                 # check if max order is reached
@@ -315,19 +392,23 @@ def random_tensor_hyper_network(
         # update tracking
         number_of_connecting_indices_to_do -= order
         number_of_used_indices += 1
-        #number_of_spaces -= order
-        #number_of_reserved_spaces -= order
-        free_spaces_in_not_max_order_tensors -= order # filled order spaces
+        # number_of_spaces -= order
+        # number_of_reserved_spaces -= order
+        free_spaces_in_not_max_order_tensors -= order  # filled order spaces
 
     # check if all connections have been made
-    assert number_of_connecting_indices_to_do == 0, f"The number of created connections = {number_of_connecting_indices-number_of_connecting_indices_to_do} does not fit regularity * number_of_tensors = {regularity * number_of_tensors}."
+    assert (
+        number_of_connecting_indices_to_do == 0
+    ), f"The number of created connections = {number_of_connecting_indices-number_of_connecting_indices_to_do} does not fit regularity * number_of_tensors = {regularity * number_of_tensors}."
 
     # SELF EDGES
     for _ in range(number_of_self_edges):
         index = get_symbol(number_of_used_indices)
 
         # determine order of self edge:
-        max_order = min(max_self_edge_order, 2 + non_reserved_spaces) # respect max order self edge and number of non-reserved spaces
+        max_order = min(
+            max_self_edge_order, 2 + non_reserved_spaces
+        )  # respect max order self edge and number of non-reserved spaces
         order = rng.integers(2, max_order + 1)
 
         # determine tensor for self edge
@@ -337,20 +418,19 @@ def random_tensor_hyper_network(
         while len(tensors[tensor]) + order > max_tensor_order:
             order = rng.integers(2, max_order + 1)
             tensor = rng.choice(not_max_order_tensors)
-        
+
         tensors[tensor] += index * order
-            
+
         # check if max order is reached
         if len(tensors[tensor]) == max_tensor_order:
             not_max_order_tensors.remove(tensor)
 
         # update tracking
-        #number_of_reserved_spaces -= 2 # took care of one self edge
-        #number_of_spaces -= order
-        non_reserved_spaces -= (order - 2)
+        # number_of_reserved_spaces -= 2 # took care of one self edge
+        # number_of_spaces -= order
+        non_reserved_spaces -= order - 2
         number_of_used_indices += 1
-        free_spaces_in_not_max_order_tensors -= order # filled order spaces
-
+        free_spaces_in_not_max_order_tensors -= order  # filled order spaces
 
     # SINGLE SUMMATION INDICES
     for _ in range(number_of_single_summation_indices):
@@ -364,22 +444,29 @@ def random_tensor_hyper_network(
             not_max_order_tensors.remove(tensor)
 
         # update tracking
-        #number_of_reserved_spaces -= 1 # took care of one single summation index
-        #number_of_spaces -= 1
+        # number_of_reserved_spaces -= 1 # took care of one single summation index
+        # number_of_spaces -= 1
         number_of_used_indices += 1
-        free_spaces_in_not_max_order_tensors -= 1 # filled 1 space
+        free_spaces_in_not_max_order_tensors -= 1  # filled 1 space
 
-        
     # OUTPUT INDICES
     for output_index_number in range(1, number_of_output_indices + 1):
         index = get_symbol(number_of_used_indices)
 
         # determine order of output index:
-        
+
         if diagonals_in_output_indices:
-            max_order = min(max_output_index_order, free_spaces_in_not_max_order_tensors, 1 + non_reserved_spaces) # can only fill free spaces in tensors that do not have max order, need to respect the max edge order, how many connections we can still do and how many spaces are not reserved
+            max_order = min(
+                max_output_index_order,
+                free_spaces_in_not_max_order_tensors,
+                1 + non_reserved_spaces,
+            )  # can only fill free spaces in tensors that do not have max order, need to respect the max edge order, how many connections we can still do and how many spaces are not reserved
         else:
-            max_order = min(max_output_index_order, len(not_max_order_tensors), 1 + non_reserved_spaces) # respect max order of output index, number of free spaces in tensors and number of output indices left to do (non_reserved_spaces)
+            max_order = min(
+                max_output_index_order,
+                len(not_max_order_tensors),
+                1 + non_reserved_spaces,
+            )  # respect max order of output index, number of free spaces in tensors and number of output indices left to do (non_reserved_spaces)
 
         order = rng.integers(1, max_order + 1)
 
@@ -387,14 +474,18 @@ def random_tensor_hyper_network(
         output += index
         if diagonals_in_output_indices:
             for _ in range(order):
-                tensor = rng.choice(not_max_order_tensors) #NOTE:we can get diagonals over one tensor in an output index
+                tensor = rng.choice(
+                    not_max_order_tensors
+                )  # NOTE:we can get diagonals over one tensor in an output index
                 tensors[tensor] += index
-                
+
                 # check if max order is reached
                 if len(tensors[tensor]) == max_tensor_order:
                     not_max_order_tensors.remove(tensor)
         else:
-            connect_to_tensors = rng.choice(not_max_order_tensors, size = order, replace = False, shuffle = False)
+            connect_to_tensors = rng.choice(
+                not_max_order_tensors, size=order, replace=False, shuffle=False
+            )
             for tensor in connect_to_tensors:
                 tensors[tensor] += index
                 # check if max order is reached
@@ -403,10 +494,10 @@ def random_tensor_hyper_network(
 
         # update tracking
         number_of_used_indices += 1
-        #number_of_reserved_spaces -= 1 # took care of one output index
-        #number_of_spaces -= order
-        non_reserved_spaces -= (order - 1)
-        free_spaces_in_not_max_order_tensors -= order # filled order spaces
+        # number_of_reserved_spaces -= 1 # took care of one output index
+        # number_of_spaces -= order
+        non_reserved_spaces -= order - 1
+        free_spaces_in_not_max_order_tensors -= order  # filled order spaces
 
     # GLOBAL DIMENSION
 
@@ -420,7 +511,7 @@ def random_tensor_hyper_network(
         number_of_used_indices += 1
 
     # check length of output and that all specifications are fulfilled
-    #assert number_of_reserved_spaces == 0, f"{number_of_reserved_spaces} spaces are still reserved."
+    # assert number_of_reserved_spaces == 0, f"{number_of_reserved_spaces} spaces are still reserved."
     assert len(output) == (number_of_output_indices + 1 * global_dim)
 
     # randomly shuffle outputs and tensors
@@ -434,7 +525,10 @@ def random_tensor_hyper_network(
     eq = "{}->{}".format(",".join(tensors), output)
 
     # get random size for an index
-    size_dict = {get_symbol(index): rng.integers(min_axis_size, max_axis_size + 1) for index in range(number_of_used_indices)}
+    size_dict = {
+        get_symbol(index): rng.integers(min_axis_size, max_axis_size + 1)
+        for index in range(number_of_used_indices)
+    }
 
     # make the shapes
     shapes = [tuple(size_dict[idx] for idx in op) for op in tensors]

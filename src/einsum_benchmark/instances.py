@@ -1,5 +1,5 @@
 import os
-from .util import get_file_paths
+from einsum_benchmark.util import get_file_paths
 import pickle
 from typing import Any, NamedTuple, List, Tuple
 

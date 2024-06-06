@@ -44,7 +44,7 @@ def generate_tree(n=100, d_min=4, d_max=12, n_outer=2, seed=1):
 
 
 if __name__ == "__main__":
-    from utils import compute_oe_path_from_shapes, print_oe_path_metrics
+    from einsum_benchmark.util import compute_oe_path_from_shapes, print_oe_path_metrics
 
     format_string, shapes = generate_tree(n=100, d_min=4, d_max=12, n_outer=2, seed=1)
     path, path_info = compute_oe_path_from_shapes(format_string, shapes)

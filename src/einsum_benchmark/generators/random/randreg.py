@@ -54,7 +54,7 @@ def randreg_equation(n, reg, d_min=2, d_max=3, seed=None):
 
 
 if __name__ == "__main__":
-    from utils import compute_oe_path_from_shapes, print_oe_path_metrics
+    from einsum_benchmark.util import compute_oe_path_from_shapes, print_oe_path_metrics
 
     format_string, shapes = randreg_equation(n=100, reg=3, d_min=2, d_max=4, seed=None)
     path, path_info = compute_oe_path_from_shapes(format_string, shapes)

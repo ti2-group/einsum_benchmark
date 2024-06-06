@@ -36,7 +36,7 @@ def generate_mps_product(
 
 
 if __name__ == "__main__":
-    from utils import compute_oe_path_from_shapes, print_oe_path_metrics
+    from einsum_benchmark.util import compute_oe_path_from_shapes, print_oe_path_metrics
 
     format_string, shapes = generate_mps_product(
         n=100, phys_dim_min=10, phys_dim_max=200, bond_dim=20, seed=0

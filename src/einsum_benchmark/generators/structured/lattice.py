@@ -77,7 +77,7 @@ def lattice(dims, cyclic=False, d_min=2, d_max=None, seed=None):
 
 
 if __name__ == "__main__":
-    from utils import compute_oe_path_from_shapes, print_oe_path_metrics
+    from einsum_benchmark.util import compute_oe_path_from_shapes, print_oe_path_metrics
 
     format_string, shapes = lattice(
         dims=[20, 20], cyclic=False, d_min=2, d_max=None, seed=None

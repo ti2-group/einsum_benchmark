@@ -1,6 +1,8 @@
 from .model_counting import dimacs_to_einsum
 from .graphical_model import parse_uai_file
 
+__all__ = ["tn_from_uai_file", "tn_from_dimacs_file"]
+
 
 def tn_from_uai_file(file_path: str) -> tuple[str, list]:
     """

@@ -4,7 +4,9 @@ import random
 
 
 # generator fo matrix Chain Multiplication
-def generate_mcm(num_matrices=10, min_dim=10, max_dim=1000, is_shuffle=False, seed=None):
+def generate_mcm(
+    num_matrices=10, min_dim=10, max_dim=1000, is_shuffle=False, seed=None
+):
     # set the seed for reproducibility
     if seed is not None:
         np.random.seed(seed)
@@ -13,7 +15,7 @@ def generate_mcm(num_matrices=10, min_dim=10, max_dim=1000, is_shuffle=False, se
     dimensions = np.random.randint(min_dim, max_dim + 1, size=num_matrices + 1)
 
     # generate the einsum string and shapes
-    einsum_str = ''
+    einsum_str = ""
     shapes = []
     for i in range(num_matrices):
         left = oe.get_symbol(i)  # left index
@@ -55,9 +57,11 @@ def generate_mcm(num_matrices=10, min_dim=10, max_dim=1000, is_shuffle=False, se
     return einsum_str, shapes
 
 
-if __name__ == '__main__':
-    from utils import compute_oe_path_from_shapes, print_oe_path_metrics
+if __name__ == "__main__":
+    from einsum_benchmark.util import compute_oe_path_from_shapes, print_oe_path_metrics
 
-    format_string, shapes = generate_mcm(num_matrices=10, min_dim=10, max_dim=1000, is_shuffle=True, seed=0)
+    format_string, shapes = generate_mcm(
+        num_matrices=10, min_dim=10, max_dim=1000, is_shuffle=True, seed=0
+    )
     path, path_info = compute_oe_path_from_shapes(format_string, shapes)
     print_oe_path_metrics(path_info)
