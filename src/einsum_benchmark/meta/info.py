@@ -90,19 +90,19 @@ def compute_meta_info_of_einsum_instance(format_string, tensors):
 
     Returns:
         Meta_Info_Instance: An instance of the Meta_Info_Instance class containing the computed meta information.
-            It has the following Attributes:
-                - tensors (int): The number of tensors involved in the computation.
-                - different_indices (int): The number of different indices in the computation.
-                - hadamard_products (int): The number of Hadamard products in the computation.
-                - edges (int): The number of contraction edges in the computation.
-                - hyperedges (int): The number of contraction hyperedges in the computation.
-                - tensors_in_largest_hyperedge (int): The number of tensors in the largest hyperedge in the computation.
-                - tensors_with_traces_or_diagonals (int): The number of tensors with traces or diagonals in the computation.
-                - independent_components (int): The number of independent components in the computation.
-                - tensors_in_largest_component (int): The number of tensors in the largest component in the computation.
-                - smallest_dimension_size (int): The size of the smallest dimension in the computation.
-                - largest_dimension_size (int): The size of the largest dimension in the computation.
-                - log2_output_size (float): The logarithm base 2 of the output size of the computation.
+        It has the following Attributes
+        - tensors (int): The number of tensors involved in the computation.
+        - different_indices (int): The number of different indices in the computation.
+        - hadamard_products (int): The number of Hadamard products in the computation.
+        - edges (int): The number of contraction edges in the computation.
+        - hyperedges (int): The number of contraction hyperedges in the computation.
+        - tensors_in_largest_hyperedge (int): The number of tensors in the largest hyperedge in the computation.
+        - tensors_with_traces_or_diagonals (int): The number of tensors with traces or diagonals in the computation.
+        - independent_components (int): The number of independent components in the computation.
+        - tensors_in_largest_component (int): The number of tensors in the largest component in the computation.
+        - smallest_dimension_size (int): The size of the smallest dimension in the computation.
+        - largest_dimension_size (int): The size of the largest dimension in the computation.
+        - log2_output_size (float): The logarithm base 2 of the output size of the computation.
 
 
     """

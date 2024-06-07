@@ -257,10 +257,10 @@ def jensum_meta(annotated_ssa_path, *arguments, debug=False):
 
     Returns:
         tuple: A tuple containing the final contracted tensor and a list of meta information for each contraction.
-            The list of meta information contains for each step, where A and B are input tensors and C is the output tensor:
-                - The number of operations (flops).
-                - The sizes of the input tensors (size_A, size_B, size_C).
-                - The densities of the input and output tensors (density_A, density_B, density_C).
+        The list of meta information contains for each step, where A and B are input tensors and C is the output tensor:
+        - The number of operations (flops).
+        - The sizes of the input tensors (size_A, size_B, size_C).
+        - The densities of the input and output tensors (density_A, density_B, density_C).
 
     Raises:
         AssertionError: If the number of contractions is less than 1 or the number of tensors in arguments is less than 2.
