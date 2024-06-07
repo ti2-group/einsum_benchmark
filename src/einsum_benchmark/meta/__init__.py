@@ -35,30 +35,25 @@ def find_path(
     show_progress_bar: bool = True,
     timeout: Optional[int] = None,
 ):
+    """Optimize a path for evaluating an einsum expression.
+
+    Args:
+        format_string (str): The Einstein summation notation expression.
+        *tensors: The input tensors.
+        minimize (Literal["flops", "size"]): The objective to minimize, either "flops" or "size".
+        n_trials (int, optional): The number of trials for the optimization process. Defaults to 128.
+        n_jobs (int, optional): The number of parallel jobs to run. Defaults to 10.
+        show_progress_bar (bool, optional): Whether to show a progress bar during optimization. Defaults to True.
+        timeout (int, optional): The maximum time in seconds for the optimization process. Defaults to None.
+
+    Returns:
+        str: An ssa path for evaluating the einsum expression.
+    """
     if importlib.util.find_spec("kahypar") is None:
         print("kahypar is not installed. Please install kahypar and cgreedy")
         return None
     if importlib.util.find_spec("cgreedy") is None:
         print("cgreedy is not installed")
-        return None
-
-    try:
-        subprocess.run(
-            ["g++", "--version"],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        subprocess.run(
-            ["gcc", "--version"],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-    except subprocess.CalledProcessError:
-        print(
-            "g++ or gcc is not installed. Please install g++ and gcc to compile the extension."
-        )
         return None
 
     from . import path_finder

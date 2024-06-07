@@ -4,10 +4,100 @@ import numpy as np
 from collections import Counter
 import math
 import time
-from opt_einsum.paths import linear_to_ssa
+
+
+def _to_ssa_path(linear_path):
+    """Convert a linear contraction path to the Single Static Assignment (SSA) form.
+
+    Args:
+        linear_path (list): A list of tuples representing the linear contraction path.
+
+    Returns:
+        list: A list of tuples representing the SSA form of the contraction path.
+
+    Raises:
+        RuntimeError: If the path contains negative indices.
+        RuntimeError: If the path cannot be converted to SSA form.
+        RuntimeError: If the path contains repeating indices within a contraction pair.
+    """
+
+    class IdVector:
+        def __init__(self, num_ids, elements):
+            self.buckets = []
+            i = 0
+            while i < num_ids - elements + 1:
+                v = [j for j in range(i, i + elements)]
+                self.buckets.append(v)
+                i += elements
+            if i < num_ids:
+                v = [j for j in range(i, num_ids)]
+                self.buckets.append(v)
+
+        def get_set(self, linear_id):
+            bucket = 0
+            sizes = len(self.buckets[0])
+            while sizes <= linear_id:
+                bucket += 1
+                sizes += len(self.buckets[bucket])
+
+            idx = linear_id - (sizes - len(self.buckets[bucket]))
+            ssa_idx = self.buckets[bucket][idx]
+            self.buckets[bucket].pop(idx)
+            if len(self.buckets[bucket]) == 0:
+                self.buckets.pop(bucket)
+            return ssa_idx
+
+    num_ids = len(linear_path) * 2
+    elements = 16384
+    tensors = IdVector(num_ids, elements)
+
+    ssa_path = []
+    c = len(linear_path) + 1  # number of input tensors
+    repeating = False
+
+    for first, second in linear_path:
+        if first < 0 or second < 0:
+            raise RuntimeError(
+                "ERROR: Path is incorrect, negative indices are not allowed."
+            )
+        if first >= c or second >= c:
+            raise RuntimeError(
+                "ERROR: Path is incorrect, it cannot be converted from linear to SSA form."
+            )
+        if first > second:
+            t1 = tensors.get_set(first)
+            t2 = tensors.get_set(second)
+        else:
+            t2 = tensors.get_set(second)
+            t1 = tensors.get_set(first)
+        c -= 1
+        repeating |= first == second
+        ssa_path.append((t1, t2))
+
+    if repeating:
+        raise RuntimeError(
+            "ERROR: Repeating indices are not allowed within a contraction path pair."
+        )
+
+    return ssa_path
 
 
 def get_ops_and_max_size(format_string, annotated_ssa_path, *tensors, size_dict=None):
+    """Calculates the total number of operations and the maximum size of intermediate tensors.
+
+       Calculates the total number of operations and the maximum size of intermediate tensors
+       for a given format string, annotated SSA path, and input tensors.
+
+    Args:
+        format_string (str): The format string specifying the input and output tensors.
+        annotated_ssa_path (list): A list of tuples representing the annotated SSA path.
+        tensors (tuple): Input tensors.
+        size_dict (dict, optional): A dictionary mapping characters in the format string to their sizes.
+
+    Returns:
+        tuple: A tuple containing the logarithm base 10 of the total number of operations and
+               the logarithm base 2 of the maximum size of intermediate tensors.
+    """
     inputs, output = format_string.split("->")
     inputs = inputs.split(",")
     if size_dict is None:
@@ -43,6 +133,18 @@ def get_ops_and_max_size(format_string, annotated_ssa_path, *tensors, size_dict=
 
 
 def to_annotated_ssa_path(format_string, ssa_path, is_ascii=False):
+    """Annote an SSA path with their pairwise einsum format string.
+
+    Args:
+        format_string (str): The format string representing the einsum expression.
+        ssa_path (list): A list of tuples representing the SSA path indices.
+        is_ascii (bool, optional): Flag indicating whether to convert the annotated SSA path
+            to ASCII characters. Defaults to False.
+
+    Returns:
+        list: Annotated SSA path, where each element is a tuple containing the indices and
+            pairwise format_string for each step in the SSA path.
+    """
     inputs, output = format_string.split("->")
     inputs = inputs.split(",")
     assert (
@@ -100,6 +202,23 @@ def to_annotated_ssa_path(format_string, ssa_path, is_ascii=False):
 
 
 def jensum(annotated_ssa_path, *arguments, debug=False):
+    """Perform a series of tensor contractions based on the annotated_ssa_path.
+
+    Args:
+        annotated_ssa_path (list): A list of tuples representing the annotated SSA path.
+            Each tuple contains three elements: the indices of the tensors to contract,
+            and the contraction expression.
+        *arguments: Variable number of tensor arguments.
+        debug (bool, optional): If True, print debug information during the contractions.
+
+    Returns:
+        The final tensor resulting from the series of contractions.
+
+    Raises:
+        AssertionError: If the number of contractions is less than 1.
+        AssertionError: If the number of tensors in arguments is less than 2.
+        RuntimeError: If the number of tensors in arguments contradicts the number of entries in annotated_ssa_path.
+    """
     l = list(arguments)
     num_contractions = len(annotated_ssa_path)
     assert num_contractions >= 1
@@ -127,6 +246,28 @@ def jensum(annotated_ssa_path, *arguments, debug=False):
 
 
 def jensum_meta(annotated_ssa_path, *arguments, debug=False):
+    """Compute the meta information and perform tensor contractions using the jensum algorithm.
+
+    Args:
+        annotated_ssa_path (list): A list of tuples representing the annotated SSA path for each contraction.
+            Each tuple contains three elements: the indices of the tensors to contract,
+            and the contraction expression.
+        arguments (tuple): The input tensors to be contracted.
+        debug (bool, optional): If True, debug information will be printed. Defaults to False.
+
+    Returns:
+        tuple: A tuple containing the final contracted tensor and a list of meta information for each contraction.
+            The list of meta information contains for each step, where A and B are input tensors and C is the output tensor:
+                - The number of operations (flops).
+                - The sizes of the input tensors (size_A, size_B, size_C).
+                - The densities of the input and output tensors (density_A, density_B, density_C).
+
+    Raises:
+        AssertionError: If the number of contractions is less than 1 or the number of tensors in arguments is less than 2.
+        RuntimeError: If the number of tensors in arguments contradicts the number of entries in annotated_ssa_path.
+        RuntimeError: If the density of a tensor cannot be computed due to missing size or numel() attribute.
+
+    """
     l = list(arguments)
     num_contractions = len(annotated_ssa_path)
     assert num_contractions >= 1
@@ -222,7 +363,18 @@ def jensum_meta(annotated_ssa_path, *arguments, debug=False):
 
 
 def min_avg_density(jmeta):
-    # information for each contraction: (flops, (size_A, size_B, size_C), (density_A, density_B, density_C))
+    """Calculate the minimum density and average density of contractions.
+
+    The average density is the number of non-zero entries divided by the total number of entries.
+
+    Args:
+        jmeta (list): A list of contractions, where each contraction is represented as a tuple
+                      containing information about flops, sizes, and densities.
+
+    Returns:
+        tuple: A tuple containing the minimum density and average density of contractions.
+
+    """
     min_density = math.inf
     nnz_entries = 0
     all_entries = 0
@@ -244,7 +396,22 @@ def min_avg_density(jmeta):
 
 
 def linear_path_runtime_meta(format_string, linear_path, *arguments, debug=False):
-    ssa_path = linear_to_ssa(linear_path)
+    """Compute the runtime metadata for a linear path.
+
+    This functions returns all metadata as given in the metadata.csv
+
+    Args:
+        format_string (str): The format string specifying the einsum operation.
+        linear_path (str): The linear path representing the einsum operation.
+        *arguments: Variable length arguments for the einsum operation.
+        debug (bool, optional): Whether to enable debug mode. Defaults to False.
+
+    Returns:
+        tuple: A tuple containing the result of the einsum expression,
+            the execution time, the minimum density, and the average density.
+
+    """
+    ssa_path = _to_ssa_path(linear_path)
     annotated_ssa_path = to_annotated_ssa_path(
         format_string, ssa_path=ssa_path, is_ascii=True
     )
