@@ -4,16 +4,18 @@ import opt_einsum
 
 
 class WmcDimacsParser:
-    """
-    This classes provides a method for parsing a file in dimacs weighted cnf
+    """Parses dimacs files to tensor networks.
+
+    This classes provides a method for parsing a file in dimacs (weighted) cnf
     format into a benchmark datapoint representing the tensor network
     corresponding to the weighted cnf.
     """
 
     def __init__(self, max_dim=3):
-        """
-        file_format: concrete type of dimacs format, see enum DimacsFormat
-        max_dim: highest allowed number of indices in one clause, memory usage per clause is O(2^d) with d number of indices in clause
+        """Initializes a ModelCountingConverter object.
+
+        Args:
+            max_dim (int): The highest allowed number of indices in one clause. Memory usage per clause is O(2^d) with d being the number of indices in the clause.
         """
         self.index = 0
         self.dimacs = None
@@ -171,8 +173,7 @@ class WmcDimacsParser:
 def dimacs_to_einsum(
     filepath: str, clause_split_threshold=3
 ) -> tuple[int, int, set, str, dict, list[np.ndarray]]:
-    """
-    Converts a DIMACS file to a tensor network representation.
+    """Converts a DIMACS file to a tensor network representation.
 
     Args:
         filepath (str): The path to the DIMACS file.

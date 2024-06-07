@@ -5,9 +5,25 @@ import numpy as np
 # generates inner product of two mps states, phys_dim can vary
 # code adapted from: https://optimized-einsum.readthedocs.io/en/stable/ex_large_expr_with_greedy.html
 # License at the bottom of this file
-def generate_mps_product(
+def matrix_product_state(
     n=100, phys_dim_min=10, phys_dim_max=200, bond_dim=20, seed=None
 ):
+    """Generates a matrix product state (MPS) for a quantum computing simulation.
+
+    Args:
+        n (int): The number of sites in the MPS. Default is 100.
+        phys_dim_min (int): The minimum physical dimension of each site. Default is 10.
+        phys_dim_max (int): The maximum physical dimension of each site. Default is 200.
+        bond_dim (int): The bond dimension between neighboring sites. Default is 20.
+        seed (int): The seed for the random number generator. Default is None.
+
+    Returns:
+        tuple: A tuple containing the einsum string and the shapes of the tensors in the MPS.
+
+    Example:
+        >>> format_string, shapes = matrix_product_state(n=100, phys_dim_min=10, phys_dim_max=200, bond_dim=20, seed=0)
+
+    """
     # start with the first site
     einsum_str = "ab,ac,"
     shapes = [(phys_dim_min, bond_dim), (phys_dim_min, bond_dim)]
@@ -33,16 +49,6 @@ def generate_mps_product(
 
     einsum_str += "->"
     return einsum_str, shapes
-
-
-if __name__ == "__main__":
-    from einsum_benchmark.util import compute_oe_path_from_shapes, print_oe_path_metrics
-
-    format_string, shapes = generate_mps_product(
-        n=100, phys_dim_min=10, phys_dim_max=200, bond_dim=20, seed=0
-    )
-    path, path_info = compute_oe_path_from_shapes(format_string, shapes)
-    print_oe_path_metrics(path_info)
 
 
 # The MIT License (MIT)

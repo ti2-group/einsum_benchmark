@@ -5,10 +5,10 @@ from numpy.random import default_rng
 
 from .util import get_symbol
 
-PathType = Collection[Tuple[int, ...]]
+Shapes = Collection[Tuple[int, ...]]
 
 
-def random_tensor_network(
+def connected_network(
     number_of_tensors: int,
     regularity: float,
     number_of_output_indices: int = 0,
@@ -17,8 +17,10 @@ def random_tensor_network(
     seed: Optional[int] = None,
     global_dim: bool = False,
     return_size_dict: bool = False,
-) -> Union[Tuple[str, PathType, Dict[str, int]], Tuple[str, PathType]]:
-    """Generate a random connected Tensor Network (TN). Returns an einsum expressions string representing the TN, shapes of the tensors and optionally a dictionary containing the index sizes.
+) -> Union[Tuple[str, Shapes, Dict[str, int]], Tuple[str, Shapes]]:
+    """Generate a random connected Tensor Network (TN).
+
+    Returns an einsum expressions string representing the TN, shapes of the tensors and optionally a dictionary containing the index sizes.
 
     Parameters
     ----------

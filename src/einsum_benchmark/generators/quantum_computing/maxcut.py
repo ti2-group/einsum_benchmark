@@ -6,7 +6,21 @@ import networkx as nx
 # generates a maxcut network
 # code adapted from: https://quimb.readthedocs.io/en/latest/examples/ex_tn_qaoa_energy_bayesopt.html
 # License at the bottom of this file
-def generate_maxcut_network(n=24, reg=3, p=3, seed=1):
+def maxcut(n=24, reg=3, p=3, seed=1):
+    """Generates a Max-Cut quantum circuit using the Quantum Approximate Optimization Algorithm (QAOA).
+
+    Args:
+        n (int): Number of nodes in the graph (default: 24).
+        reg (int): Regularity of the graph (default: 3).
+        p (int): Number of QAOA steps (default: 3).
+        seed (int): Seed for random number generation (default: 1).
+
+    Returns:
+        tuple: A tuple containing the input string and the arrays of the quantum circuit.
+
+    Example:
+        >>> format_string, arrays = maxcut(n=24, reg=3, p=3, seed=1)
+    """
     G = nx.random_regular_graph(reg, n, seed=seed)
     terms = {(i, j): 1 for i, j in G.edges}
     gammas = qu.randn((p,))
@@ -17,14 +31,6 @@ def generate_maxcut_network(n=24, reg=3, p=3, seed=1):
     arrays = tn.arrays
     inputs, _, size_dict = tn.get_inputs_output_size_dict()
     return ",".join(inputs) + "->", arrays
-
-
-if __name__ == "__main__":
-    from einsum_benchmark.util import compute_oe_path_from_arrays, print_oe_path_metrics
-
-    format_string, arrays = generate_maxcut_network(n=24, reg=3, p=3, seed=1)
-    path, path_info = compute_oe_path_from_arrays(format_string, arrays)
-    print_oe_path_metrics(path_info)
 
 
 # Copyright 2015-2024 Johnnie Gray

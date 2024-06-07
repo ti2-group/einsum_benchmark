@@ -5,29 +5,23 @@ import networkx as nx
 
 # adapted from: https://github.com/jcmgray/cotengra/blob/main/cotengra/utils.py
 # License at the bottom of this file
-def randreg_equation(n, reg, d_min=2, d_max=3, seed=None):
-    """Create a random contraction equation that corresponds to a random
-    regular graph.
+def regular(n, reg, d_min=2, d_max=3, seed=None):
+    """Create a random contraction equation that corresponds to a random regular graph.
 
-    Parameters
-    ----------
-    n : int
-        The number of terms.
-    reg : int
-        The degree of the graph.
-    d_min : int, optional
-        The minimum size of an index.
-    d_max : int, optional
-        The maximum size of an index.
-    seed : None or int, optional
-        Seed for ``networkx`` and ``np.random.default_rng`` for repeatibility.
+    The graph must not be connected and for large graphs it will very likely have several components
 
-    Returns
-    -------
-    inputs : list[list[str]]
-    output : list[str]
-    shapes : list[tuple[int]]
-    size_dict : dict[str, int]
+    Args:
+        n (int): The number of terms.
+        reg (int): The degree of the graph.
+        d_min (int, optional): The minimum size of an index.
+        d_max (int, optional): The maximum size of an index.
+        seed (None or int, optional): Seed for `networkx` and `np.random.default_rng` for repeatability.
+
+    Returns:
+        Tuple[List[List[str]], List[str], List[Tuple[int]], Dict[str, int]]: The inputs, output, shapes, and size dictionary.
+
+    Example:
+        >>> format_string, shapes = randreg_equation(n=100, reg=3, d_min=2, d_max=4, seed=None)
     """
     G = nx.random_regular_graph(reg, n, seed=seed)
     inputs = [[] for _ in range(n)]
@@ -52,13 +46,6 @@ def randreg_equation(n, reg, d_min=2, d_max=3, seed=None):
 
     return format_string, shapes
 
-
-if __name__ == "__main__":
-    from einsum_benchmark.util import compute_oe_path_from_shapes, print_oe_path_metrics
-
-    format_string, shapes = randreg_equation(n=100, reg=3, d_min=2, d_max=4, seed=None)
-    path, path_info = compute_oe_path_from_shapes(format_string, shapes)
-    print_oe_path_metrics(path_info)
 
 #
 #                                  Apache License

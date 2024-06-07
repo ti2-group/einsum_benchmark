@@ -9,21 +9,22 @@ import collections
 def lattice(dims, cyclic=False, d_min=2, d_max=None, seed=None):
     """Create a random contraction equation that corresponds to a lattice.
 
-    Parameters
-    ----------
-    dims : sequence of int
-        The size of each dimension, with the dimensionality being the length
-        of the sequence.
-    cyclic : bool or sequence of bool, optional
-        Whether each dimension is cyclic or not. If a sequence, must be the
-        same length as ``dims``.
-    d_min : int, optional
-        The minimum size of an index.
-    d_max : int, optional
-        The maximum size of an index. If ``None``, defaults to ``d_min``, i.e.
-        all indices are the same size.
-    seed : None or int, optional
-        Seed for ``random.Random`` for repeatibility.
+    Args:
+        dims (sequence of int): The size of each dimension, with the dimensionality being the length
+            of the sequence.
+        cyclic (bool or sequence of bool, optional): Whether each dimension is cyclic or not. If a sequence,
+            must be the same length as ``dims``.
+        d_min (int, optional): The minimum size of an index.
+        d_max (int, optional): The maximum size of an index. If ``None``, defaults to ``d_min``, i.e.
+            all indices are the same size.
+        seed (None or int, optional): Seed for ``random.Random`` for repeatability.
+
+    Returns:
+        tuple: A tuple containing the contraction equation format string and the shapes of the inputs.
+
+    Raises:
+        TypeError: If ``cyclic`` is a sequence but not the same length as ``dims``.
+
     """
     if d_max is None:
         d_max = d_min

@@ -139,24 +139,21 @@ def build_sliding_likelihood(
     return format_string, argument_shapes
 
 
-def generate_benchmark_p_first_and_last(
+def p_first_and_last(
     mera_depth: int, axis_size_hidden: int, axis_size_observable: int
 ) -> tuple[str, list[tuple[int, ...]]]:
     """Generates an einsum query and shape arguments for computing the distribution of the first and last observable in a model with the given parameters.
 
-    Parameters
-    ----------
-    mera_depth : int
-        Number of layers in a MERA network with 4th-order tensors.
-    axis_size_hidden : int
-        Domain size of hidden variables.
-    axis_size_observable : int
-        Domain size of observable variables.
+    Args:
+        mera_depth (int): Number of layers in a MERA network with 4th-order tensors.
+        axis_size_hidden (int): Domain size of hidden variables.
+        axis_size_observable (int): Domain size of observable variables.
 
-    Returns
-    -------
-    tuple[str, list[tuple[int, ...]]]
-        The einsum format string, which is needed to compute the distribution, and the shapes of its arguments.
+    Returns:
+        tuple[str, list[tuple[int, ...]]]: The einsum format string, which is needed to compute the distribution, and the shapes of its arguments.
+
+    Example:
+        >>> format_string, argument_shapes = p_first_and_last(mera_depth=1, axis_size_hidden=3, axis_size_observable=11)
     """
 
     index_strings, shapes = gen_structure_and_shapes(
@@ -165,45 +162,24 @@ def generate_benchmark_p_first_and_last(
     return build_p_first_and_last(index_strings, shapes)
 
 
-def generate_benchmark_sliding_likelihood(
+def sliding_likelihood(
     mera_depth: int, axis_size_hidden: int, axis_size_observable: int, batch_size: int
 ) -> tuple[str, list[tuple[int, ...]]]:
     """Generates an einsum query and shape arguments for computing the likelihood of the model on an imaginary batch of training data.
 
-    Parameters
-    ----------
-    mera_depth : int
-        Number of layers in a MERA network with 4th-order tensors.
-    axis_size_hidden : int
-        Domain size of hidden variables.
-    axis_size_observable : int
-        Domain size of observable variables.
-    batch_size : int
-        Number of context windows to compute the likelihood for.
+    Args:
+        mera_depth (int): Number of layers in a MERA network with 4th-order tensors.
+        axis_size_hidden (int): Domain size of hidden variables.
+        axis_size_observable (int): Domain size of observable variables.
+        batch_size (int): Number of context windows to compute the likelihood for.
 
-    Returns
-    -------
-    tuple[str, list[tuple[int, ...]]]
-        The einsum format string, which is needed to compute the batch likelihood, and the shapes of its arguments.
+    Returns:
+        tuple[str, list[tuple[int, ...]]]: The einsum format string, which is needed to compute the batch likelihood, and the shapes of its arguments.
+    Example:
+        >>> format_string, shapes = sliding_likelihood(mera_depth=1, axis_size_hidden=3, axis_size_observable=11, batch_size=100)
     """
 
     index_strings, shapes = gen_structure_and_shapes(
         mera_depth, axis_size_hidden, axis_size_observable
     )
     return build_sliding_likelihood(index_strings, shapes, batch_size)
-
-
-def main():
-    # example usage
-    format_string, argument_shapes = generate_benchmark_p_first_and_last(
-        mera_depth=1, axis_size_hidden=3, axis_size_observable=11
-    )
-    print(format_string, argument_shapes)
-    format_string, argument_shapes = generate_benchmark_sliding_likelihood(
-        mera_depth=1, axis_size_hidden=3, axis_size_observable=11, batch_size=100
-    )
-    print(format_string, argument_shapes)
-
-
-if __name__ == "__main__":
-    main()

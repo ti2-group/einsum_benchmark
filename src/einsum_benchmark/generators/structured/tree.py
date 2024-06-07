@@ -4,21 +4,19 @@ import random
 
 # adapted from: https://github.com/jcmgray/cotengra/blob/main/cotengra/utils.py
 # License at the bottom of this file
-def generate_tree(n=100, d_min=4, d_max=12, n_outer=2, seed=1):
+def tree(n=100, d_min=4, d_max=12, n_outer=2, seed=1):
     """Create a random contraction equation that corresponds to a tree.
 
-    Parameters
-    ----------
-    n : int
-        The number of tensors.
-    d_min : int, optional
-        The minimum size of an index.
-    d_max : int, optional
-        The maximum size of an index.
-    n_outer : int, optional
-        The number of outer indices.
-    seed : int, optional
-        Seed for generator.
+    Args:
+        n (int): The number of tensors.
+        d_min (int, optional): The minimum size of an index.
+        d_max (int, optional): The maximum size of an index.
+        n_outer (int, optional): The number of outer indices.
+        seed (int, optional): Seed for generator.
+
+    Returns:
+        tuple: A tuple containing the contraction equation format string and the shapes of the tensors.
+
     """
     rng = random.Random(seed)
 
@@ -46,7 +44,7 @@ def generate_tree(n=100, d_min=4, d_max=12, n_outer=2, seed=1):
 if __name__ == "__main__":
     from einsum_benchmark.util import compute_oe_path_from_shapes, print_oe_path_metrics
 
-    format_string, shapes = generate_tree(n=100, d_min=4, d_max=12, n_outer=2, seed=1)
+    format_string, shapes = tree(n=100, d_min=4, d_max=12, n_outer=2, seed=1)
     path, path_info = compute_oe_path_from_shapes(format_string, shapes)
     print_oe_path_metrics(path_info)
 

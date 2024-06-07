@@ -7,6 +7,24 @@ import random
 def generate_mcm(
     num_matrices=10, min_dim=10, max_dim=1000, is_shuffle=False, seed=None
 ):
+    """Generate a matrix chain multiplication problem.
+
+    Args:
+        num_matrices (int): The number of matrices in the chain (default: 10).
+        min_dim (int): The minimum dimension of each matrix (default: 10).
+        max_dim (int): The maximum dimension of each matrix (default: 1000).
+        is_shuffle (bool): Whether to shuffle the einsum string and shapes (default: False).
+        seed (int): The seed value for reproducibility (default: None).
+
+    Returns:
+        tuple: A tuple containing the einsum string and the shapes of the matrices.
+
+    Raises:
+        AssertionError: If the lists of einsum string and shapes have different sizes.
+
+    Example:
+        >>> generate_mcm(num_matrices=10, min_dim=10, max_dim=1000, is_shuffle=True, seed=0)
+    """
     # set the seed for reproducibility
     if seed is not None:
         np.random.seed(seed)
@@ -55,13 +73,3 @@ def generate_mcm(
     einsum_str += f"->{output_str}"
 
     return einsum_str, shapes
-
-
-if __name__ == "__main__":
-    from einsum_benchmark.util import compute_oe_path_from_shapes, print_oe_path_metrics
-
-    format_string, shapes = generate_mcm(
-        num_matrices=10, min_dim=10, max_dim=1000, is_shuffle=True, seed=0
-    )
-    path, path_info = compute_oe_path_from_shapes(format_string, shapes)
-    print_oe_path_metrics(path_info)

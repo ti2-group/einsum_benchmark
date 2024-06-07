@@ -4,10 +4,10 @@ from numpy.random import default_rng
 
 from .util import get_symbol
 
-PathType = Collection[Tuple[int, ...]]
+Shapes = Collection[Tuple[int, ...]]
 
 
-def random_tensor_hyper_network(
+def connected_hypernetwork(
     number_of_tensors: int,
     regularity: float,
     max_tensor_order: int = None,
@@ -24,150 +24,128 @@ def random_tensor_hyper_network(
     max_axis_size: int = 10,
     seed: Optional[int] = None,
     return_size_dict: bool = False,
-) -> Union[Tuple[str, PathType, Dict[str, int]], Tuple[str, PathType]]:
-    """Generate a random contraction and shapes.
+) -> Union[Tuple[str, Shapes, Dict[str, int]], Tuple[str, Shapes]]:
+    """Generate a random connected Hyper Tensor Network (HTN).
 
-    Parameters
-    ----------
-    number_of_tensors : int
-        Number of tensors/arrays in the TN.
-    regularity : float
-        'Regularity' of the TN. This determines how
-        many indices/axes each tensor shares with others on average (not counting output indices, global dimensions, self edges and single summation indices).
-    max_tensor_order: int = None, optional
-        The maximum order (number of axes/dimensions) of the tensors. If ``None``, use an upper bound calculated from other parameters.
-    max_edge_order: int, optional
-        The maximum order of hyperedges.
-    diagonals_in_hyper_edges: bool = False,
-        Whether diagonals can appear in hyper edges, e.g. in "aab,ac,ad -> bcd" a is a hyper edge with a diagonal in the first tensor.
-    number_of_output_indices : int, optional
-        Number of output indices/axes (i.e. the number of non-contracted indices) including global dimensions.
-        Defaults to 0 if global_dim = False, i.e., a contraction resulting in a scalar, and to 1 if global_dim = True.
-    max_output_index_order: int = 1, optional
-        Restricts the number of times the same output index can occur.
-    diagonals_in_output_indices: bool = False,
-        Whether diagonals can appear in output indices, e.g. in "aab,ac -> abc" a is an output index with a diagonal in the first tensor.
-    number_of_self_edges: int = 0, optional
-        The number of self edges/traces (e.g. in "ab,bcdd->ac" d represents a self edge).
-    max_self_edge_order: int = 2, optional
-        The maximum order of a self edge e.g. in "ab,bcddd->ac" the self edge represented by d has order 3.
-    number_of_single_summation_indices: int = 0, optional
-        The number of indices that are not connected to any other tensors and do not show up in the ouput (e.g. in "ab,bc->c" a is a single summation index).
-    min_axis_size : int, optional
-        Minimum size of an axis/index (dimension) of the tensors.
-    max_axis_size : int, optional
-        Maximum size of an axis/index (dimension) of the tensors.
-    seed: int, optional
-        If not None, seed numpy's random generator with this.
-    global_dim : bool, optional
-        Add a global, 'broadcast', dimension to every operand.
-    return_size_dict : bool, optional
-        Return the mapping of indices to sizes.
+    Returns an einsum expressions string representing the HTN, shapes of the tensors and optionally a dictionary containing the index sizes.
 
-    Returns
-    -------
-    eq : str
-        The einsum expression string.
-    shapes : list[tuple[int]]
-        The shapes of the tensors/arrays.
-    size_dict : dict[str, int]
-        The dict of index sizes, only returned if ``return_size_dict=True``.
+    Args:
+        number_of_tensors (int): Number of tensors/arrays in the TN.
+        regularity (float): 'Regularity' of the TN. This determines how
+            many indices/axes each tensor shares with others on average (not counting output indices, global dimensions, self edges and single summation indices).
+        max_tensor_order (int, optional): The maximum order (number of axes/dimensions) of the tensors. If ``None``, use an upper bound calculated from other parameters.
+        max_edge_order (int, optional): The maximum order of hyperedges.
+        diagonals_in_hyper_edges (bool, optional): Whether diagonals can appear in hyper edges, e.g. in "aab,ac,ad -> bcd" a is a hyper edge with a diagonal in the first tensor.
+        number_of_output_indices (int, optional): Number of output indices/axes (i.e. the number of non-contracted indices) including global dimensions. Defaults to 0 if global_dim = False, i.e., a contraction resulting in a scalar, and to 1 if global_dim = True.
+        max_output_index_order (int, optional): Restricts the number of times the same output index can occur.
+        diagonals_in_output_indices (bool, optional): Whether diagonals can appear in output indices, e.g. in "aab,ac -> abc" a is an output index with a diagonal in the first tensor.
+        number_of_self_edges (int, optional): The number of self edges/traces (e.g. in "ab,bcdd->ac" d represents a self edge).
+        max_self_edge_order (int, optional): The maximum order of a self edge e.g. in "ab,bcddd->ac" the self edge represented by d has order 3.
+        number_of_single_summation_indices (int, optional): The number of indices that are not connected to any other tensors and do not show up in the ouput (e.g. in "ab,bc->c" a is a single summation index).
+        min_axis_size (int, optional): Minimum size of an axis/index (dimension) of the tensors.
+        max_axis_size (int, optional): Maximum size of an axis/index (dimension) of the tensors.
+        seed (int, optional): If not None, seed numpy's random generator with this.
+        global_dim (bool, optional): Add a global, 'broadcast', dimension to every operand.
+        return_size_dict (bool, optional): Return the mapping of indices to sizes.
 
-    Examples
-    --------
-    'usual' Tensor Hyper Networks
-    >>> eq, shapes, size_dict = random_tensor_hyper_network(
-        number_of_tensors = 10
-        regularity = 2.5
-        max_tensor_order = 10
-        max_edge_order = 5
-        number_of_output_indices = 5
-        min_axis_size = 2
-        max_axis_size = 4
-        return_size_dict = True,
-        seed = 12345
-    )
-    >>> eq
-    'bdca,abhcdg,cbmd,cfd,ed,e,figj,gl,h,nik->jnmkl'
+    Returns:
+        Tuple[str, List[Tuple[int]], Optional[Dict[str, int]]]: The einsum expression string, the shapes of the tensors/arrays, and the dict of index sizes (only returned if ``return_size_dict=True``).
 
-    >>> shapes
-    [(2, 2, 2, 2),
-    (2, 2, 4, 2, 2, 3),
-    (2, 2, 4, 2),
-    (2, 2, 2),
-    (2, 2),
-    (2,),
-    (2, 4, 3, 3),
-    (3, 2),
-    (4,),
-    (3, 4, 3)]
+    Examples:
+        'usual' Tensor Hyper Networks
 
-    >>> size_dict
-    {'a': 2, 'b': 2, 'c': 2, 'd': 2, 'e': 2, 'f': 2, 'g': 3, 'h': 4, 'i': 4, 'j': 3, 'k': 3, 'l': 2, 'm': 4, 'n': 3}
+        >>> eq, shapes, size_dict = random_tensor_hyper_network(
+            number_of_tensors=10,
+            regularity=2.5,
+            max_tensor_order=10,
+            max_edge_order=5,
+            number_of_output_indices=5,
+            min_axis_size=2,
+            max_axis_size=4,
+            return_size_dict=True,
+            seed=12345
+        )
+        >>> eq
+        'bdca,abhcdg,cbmd,cfd,ed,e,figj,gl,h,nik->jnmkl'
 
-    Tensor Hyper Networks with self edges (of higher order), single summation indices, output indices of higher order and a global dimension
-    >>> eq, shapes = random_tensor_hyper_network(
-        number_of_tensors = 10,
-        regularity = 2.5,
-        max_tensor_order = 5,
-        max_edge_order = 6,
-        number_of_output_indices = 5,
-        max_output_index_order = 3,
-        number_of_self_edges = 4,
-        max_self_edge_order = 3,
-        number_of_single_summation_indices = 3,
-        global_dim = True,
-        min_axis_size = 2,
-        max_axis_size = 4,
-        seed = 12345
-    )
-    >>> eq
-    'caxpp,afxeb,nbkxn,jdkxc,tdqxv,hxgre,jlxfi,xsgmm,howxo,xuijl->utvwx'
+        >>> shapes
+        [(2, 2, 2, 2),
+        (2, 2, 4, 2, 2, 3),
+        (2, 2, 4, 2),
+        (2, 2, 2),
+        (2, 2),
+        (2,),
+        (2, 4, 3, 3),
+        (3, 2),
+        (4,),
+        (3, 4, 3)]
 
-    >>> shapes
-    [(2, 4, 4, 3, 3),
-    (4, 3, 4, 3, 3),
-    (3, 3, 2, 4, 3),
-    (2, 2, 2, 4, 2),
-    (2, 2, 2, 4, 3),
-    (4, 4, 2, 3, 3),
-    (2, 2, 4, 3, 3),
-    (4, 3, 2, 3, 3),
-    (4, 2, 2, 4, 2),
-    (4, 2, 3, 2, 2)]
+        >>> size_dict
+        {'a': 2, 'b': 2, 'c': 2, 'd': 2, 'e': 2, 'f': 2, 'g': 3, 'h': 4, 'i': 4, 'j': 3, 'k': 3, 'l': 2, 'm': 4, 'n': 3}
 
-    Tensor Hyper Networks as above but with diagonals in hyper edges and output indices
-    >>> eq, shapes = random_tensor_hyper_network(
-        number_of_tensors = 10,
-        regularity = 3.0,
-        max_tensor_order = 10,
-        max_edge_order = 3,
-        diagonals_in_hyper_edges = True,
-        number_of_output_indices = 5,
-        max_output_index_order = 3,
-        diagonals_in_output_indices = True,
-        number_of_self_edges = 4,
-        max_self_edge_order = 3,
-        number_of_single_summation_indices = 3,
-        global_dim = True,
-        min_axis_size = 2,
-        max_axis_size = 4,
-        seed = 12345
-    )
-    >>> eq
-    'cabxk,gkegax,wldxbrb,ctoxdfo,xvdlv,weehx,nfnkx,spgpixqu,xjimhm,ijx->uvwtx'
+        Tensor Hyper Networks with self edges (of higher order), single summation indices, output indices of higher order and a global dimension
+        >>> eq, shapes = random_tensor_hyper_network(
+            number_of_tensors=10,
+            regularity=2.5,
+            max_tensor_order=5,
+            max_edge_order=6,
+            number_of_output_indices=5,
+            max_output_index_order=3,
+            number_of_self_edges=4,
+            max_self_edge_order=3,
+            number_of_single_summation_indices=3,
+            global_dim=True,
+            min_axis_size=2,
+            max_axis_size=4,
+            seed=12345
+        )
+        >>> eq
+        'caxpp,afxeb,nbkxn,jdkxc,tdqxv,hxgre,jlxfi,xsgmm,howxo,xuijl->utvwx'
 
-    >>> shapes
-    [(3, 2, 4, 3, 2),
-    (2, 2, 3, 2, 2, 3),
-    (4, 4, 3, 3, 4, 3, 4),
-    (3, 4, 3, 3, 3, 3, 3),
-    (3, 3, 3, 4, 3),
-    (4, 3, 3, 2, 3),
-    (4, 3, 4, 2, 3),
-    (3, 3, 2, 3, 2, 3, 2, 2),
-    (3, 4, 2, 2, 2, 2),
-    (2, 4, 3)]
+        >>> shapes
+        [(2, 4, 4, 3, 3),
+        (4, 3, 4, 3, 3),
+        (3, 3, 2, 4, 3),
+        (2, 2, 2, 4, 2),
+        (2, 2, 2, 4, 3),
+        (4, 4, 2, 3, 3),
+        (2, 2, 4, 3, 3),
+        (4, 3, 2, 3, 3),
+        (4, 2, 2, 4, 2),
+        (4, 2, 3, 2, 2)]
+
+        Tensor Hyper Networks as above but with diagonals in hyper edges and output indices
+        >>> eq, shapes = random_tensor_hyper_network(
+            number_of_tensors=10,
+            regularity=3.0,
+            max_tensor_order=10,
+            max_edge_order=3,
+            diagonals_in_hyper_edges=True,
+            number_of_output_indices=5,
+            max_output_index_order=3,
+            diagonals_in_output_indices=True,
+            number_of_self_edges=4,
+            max_self_edge_order=3,
+            number_of_single_summation_indices=3,
+            global_dim=True,
+            min_axis_size=2,
+            max_axis_size=4,
+            seed=12345
+        )
+        >>> eq
+        'cabxk,gkegax,wldxbrb,ctoxdfo,xvdlv,weehx,nfnkx,spgpixqu,xjimhm,ijx->uvwtx'
+
+        >>> shapes
+        [(3, 2, 4, 3, 2),
+        (2, 2, 3, 2, 2, 3),
+        (4, 4, 3, 3, 4, 3, 4),
+        (3, 4, 3, 3, 3, 3, 3),
+        (3, 3, 3, 4, 3),
+        (4, 3, 3, 2, 3),
+        (4, 3, 4, 2, 3),
+        (3, 3, 2, 3, 2, 3, 2, 2),
+        (3, 4, 2, 2, 2, 2),
+        (2, 4, 3)]
     """
 
     # handle inputs
