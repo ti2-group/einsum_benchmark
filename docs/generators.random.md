@@ -110,100 +110,70 @@ Returns an einsum expressions string representing the HTN, shapes of the tensors
  'usual' Tensor Hyper Networks 
 
 ```python
- eq, shapes, size_dict = random_tensor_hyper_network(
-```
-         number_of_tensors=10,
-         regularity=2.5,
-         max_tensor_order=10,
-         max_edge_order=5,
-         number_of_output_indices=5,
-         min_axis_size=2,
-         max_axis_size=4,
-         return_size_dict=True,
-         seed=12345
-    )
-    >>> eq
-    'bdca,abhcdg,cbmd,cfd,ed,e,figj,gl,h,nik->jnmkl'
+eq, shapes, size_dict = random_tensor_hyper_network(
+    number_of_tensors=10,
+    regularity=2.5,
+    max_tensor_order=10,
+    max_edge_order=5,
+    number_of_output_indices=5,
+    min_axis_size=2,
+    max_axis_size=4,
+    return_size_dict=True,
+    seed=12345
+)
+# Then, eq, shapes, and size_dict are:
+eq = 'bdca,abhcdg,cbmd,cfd,ed,e,figj,gl,h,nik->jnmkl'
+shapes = [(2, 2, 2, 2), (2, 2, 4, 2, 2, 3), (2, 2, 4, 2), (2, 2, 2), (2, 2), (2,), (2, 4, 3, 3), (3, 2), (4,), (3, 4, 3)]
+size_dict = {'a': 2, 'b': 2, 'c': 2, 'd': 2, 'e': 2, 'f': 2, 'g': 3, 'h': 4, 'i': 4, 'j': 3, 'k': 3, 'l': 2, 'm': 4, 'n': 3}
+``` 
 
-    >>> shapes
-    [(2, 2, 2, 2),
-    (2, 2, 4, 2, 2, 3),
-    (2, 2, 4, 2),
-    (2, 2, 2),
-    (2, 2),
-    (2,),
-    (2, 4, 3, 3),
-    (3, 2),
-    (4,),
-    (3, 4, 3)]
+Tensor Hyper Networks with self edges (of higher order), single summation indices, output indices of higher order and a global dimension 
 
-    >>> size_dict
-    {'a': 2, 'b': 2, 'c': 2, 'd': 2, 'e': 2, 'f': 2, 'g': 3, 'h': 4, 'i': 4, 'j': 3, 'k': 3, 'l': 2, 'm': 4, 'n': 3}
+```python
+eq, shapes = random_tensor_hyper_network(
+    number_of_tensors=10,
+    regularity=2.5,
+    max_tensor_order=5,
+    max_edge_order=6,
+    number_of_output_indices=5,
+    max_output_index_order=3,
+    number_of_self_edges=4,
+    max_self_edge_order=3,
+    number_of_single_summation_indices=3,
+    global_dim=True,
+    min_axis_size=2,
+    max_axis_size=4,
+    seed=12345
+)
+# Then, eq and shapes are:
+eq = 'cabxk,gkegax,wldxbrb,ctoxdfo,xvdlv,weehx,nfnkx,spgpixqu,xjimhm,ijx->uvwtx'
+shapes = [(3, 2, 4, 3, 2), (2, 2, 3, 2, 2, 3), (4, 4, 3, 3, 4, 3, 4), (3, 4, 3, 3, 3, 3, 3), (3, 3, 3, 4, 3), (4, 3, 3, 2, 3), (4, 3, 4, 2, 3), (3, 3, 2, 3, 2, 3, 2, 2), (3, 4, 2, 2, 2, 2), (2, 4, 3)]
+``` 
 
-    Tensor Hyper Networks with self edges (of higher order), single summation indices, output indices of higher order and a global dimension
-    >>> eq, shapes = random_tensor_hyper_network(
-         number_of_tensors=10,
-         regularity=2.5,
-         max_tensor_order=5,
-         max_edge_order=6,
-         number_of_output_indices=5,
-         max_output_index_order=3,
-         number_of_self_edges=4,
-         max_self_edge_order=3,
-         number_of_single_summation_indices=3,
-         global_dim=True,
-         min_axis_size=2,
-         max_axis_size=4,
-         seed=12345
-    )
-    >>> eq
-    'caxpp,afxeb,nbkxn,jdkxc,tdqxv,hxgre,jlxfi,xsgmm,howxo,xuijl->utvwx'
+Tensor Hyper Networks as above but with diagonals in hyper edges and output indices 
 
-    >>> shapes
-    [(2, 4, 4, 3, 3),
-    (4, 3, 4, 3, 3),
-    (3, 3, 2, 4, 3),
-    (2, 2, 2, 4, 2),
-    (2, 2, 2, 4, 3),
-    (4, 4, 2, 3, 3),
-    (2, 2, 4, 3, 3),
-    (4, 3, 2, 3, 3),
-    (4, 2, 2, 4, 2),
-    (4, 2, 3, 2, 2)]
-
-    Tensor Hyper Networks as above but with diagonals in hyper edges and output indices
-    >>> eq, shapes = random_tensor_hyper_network(
-         number_of_tensors=10,
-         regularity=3.0,
-         max_tensor_order=10,
-         max_edge_order=3,
-         diagonals_in_hyper_edges=True,
-         number_of_output_indices=5,
-         max_output_index_order=3,
-         diagonals_in_output_indices=True,
-         number_of_self_edges=4,
-         max_self_edge_order=3,
-         number_of_single_summation_indices=3,
-         global_dim=True,
-         min_axis_size=2,
-         max_axis_size=4,
-         seed=12345
-    )
-    >>> eq
-    'cabxk,gkegax,wldxbrb,ctoxdfo,xvdlv,weehx,nfnkx,spgpixqu,xjimhm,ijx->uvwtx'
-
-    >>> shapes
-    [(3, 2, 4, 3, 2),
-    (2, 2, 3, 2, 2, 3),
-    (4, 4, 3, 3, 4, 3, 4),
-    (3, 4, 3, 3, 3, 3, 3),
-    (3, 3, 3, 4, 3),
-    (4, 3, 3, 2, 3),
-    (4, 3, 4, 2, 3),
-    (3, 3, 2, 3, 2, 3, 2, 2),
-    (3, 4, 2, 2, 2, 2),
-    (2, 4, 3)]
-
+```python
+eq, shapes = random_tensor_hyper_network(
+    number_of_tensors=10,
+    regularity=3.0,
+    max_tensor_order=10,
+    max_edge_order=3,
+    diagonals_in_hyper_edges=True,
+    number_of_output_indices=5,
+    max_output_index_order=3,
+    diagonals_in_output_indices=True,
+    number_of_self_edges=4,
+    max_self_edge_order=3,
+    number_of_single_summation_indices=3,
+    global_dim=True,
+    min_axis_size=2,
+    max_axis_size=4,
+    seed=12345
+)
+# Then, eq and shapes are:
+eq = 'cabxk,gkegax,wldxbrb,ctoxdfo,xvdlv,weehx,nfnkx,spgpixqu,xjimhm,ijx->uvwtx'
+shapes = [(3, 2, 4, 3, 2), (2, 2, 3, 2, 2, 3), (4, 4, 3, 3, 4, 3, 4), (3, 4, 3, 3, 3, 3, 3), (3, 3, 3, 4, 3), (4, 3, 3, 2, 3), (4, 3, 4, 2, 3), (3, 3, 2, 3, 2, 3, 2, 2), (3, 4, 2, 2, 2, 2), (2, 4, 3)]
+``` 
 
 
 ---
@@ -227,47 +197,43 @@ def connected_network(
 
 Generate a random connected Tensor Network (TN). 
 
-Returns an einsum expressions string representing the TN, shapes of the tensors and optionally a dictionary containing the index sizes. 
 
-Parameters 
----------- number_of_tensors : int  Number of tensors/arrays in the TN. regularity : float  'Regularity' of the TN. This determines how  many indices/axes each tensor shares with others on average (not counting output indices and a global dimension). number_of_output_indices : int, optional  Number of output indices/axes (i.e. the number of non-contracted indices) including the global dimension.  Defaults to 0 in case of no global dimension, i.e., a contraction resulting in a scalar, and to 1 in case there is a global dimension. min_axis_size : int, optional  Minimum size of an axis/index (dimension) of the tensors. max_axis_size : int, optional  Maximum size of an axis/index (dimension) of the tensors. seed: int, optional  If not None, seed numpy's random generator with this. global_dim : bool, optional  Add a global, 'broadcast', dimension to every operand. return_size_dict : bool, optional  Return the mapping of indices to sizes. 
 
-Returns 
-------- eq : str  The einsum expression string. shapes : list[tuple[int]]  The shapes of the tensors/arrays. size_dict : dict[str, int]  The dict of index sizes, only returned if ``return_size_dict=True``. 
+**Args:**
+ 
+ - <b>`number_of_tensors`</b> (int):  Number of tensors/arrays in the TN. 
+ - <b>`regularity`</b> (float):  'Regularity' of the TN. This determines how  many indices/axes each tensor shares with others on average (not counting output indices and a global dimension). 
+ - <b>`number_of_output_indices`</b> (int, optional):  Number of output indices/axes (i.e. the number of non-contracted indices) including the global dimension.  Defaults to 0 in case of no global dimension, i.e., a contraction resulting in a scalar, and to 1 in case there is a global dimension. 
+ - <b>`min_axis_size`</b> (int, optional):  Minimum size of an axis/index (dimension) of the tensors. 
+ - <b>`max_axis_size`</b> (int, optional):  Maximum size of an axis/index (dimension) of the tensors. 
+ - <b>`seed`</b> (int, optional):  If not None, seed numpy's random generator with this. 
+ - <b>`global_dim`</b> (bool, optional):  Add a global, 'broadcast', dimension to every operand. 
+ - <b>`return_size_dict`</b> (bool, optional):  Return the mapping of indices to sizes. 
 
-Example 
--------- ```python
- eq, shapes, size_dict = random_tensor_network(
-```
-     number_of_tensors = 10,
-     regularity = 3.5,
-     number_of_output_indices = 5,
-     min_axis_size = 2,
-     max_axis_size = 4,
-     return_size_dict = True,
-     global_dim = False,
-     seed = 12345
+
+
+**Returns:**
+ 
+ - <b>`Tuple[str, List[Tuple[int]], Optional[Dict[str, int]]]`</b>:  The einsum expression string, the shapes of the tensors/arrays, and the dict of index sizes (only returned if return_size_dict=True). 
+
+
+
+**Example:**
+ ```python
+eq, shapes, size_dict = random_tensor_network(
+    number_of_tensors = 10,
+    regularity = 3.5,
+    number_of_output_indices = 5,
+    min_axis_size = 2,
+    max_axis_size = 4,
+    return_size_dict = True,
+    global_dim = False,
+    seed = 12345
 )
-
-```python
- eq
-``` 'gafoj,mpab,uhlbcdn,cqlipe,drstk,ve,fk,ongmq,hj,i->sturv' 
-
-```python
- shapes
-```
-[(3, 4, 4, 2, 3),
-(3, 2, 4, 2),
-(4, 4, 2, 2, 4, 2, 3),
-(4, 2, 2, 4, 2, 2),
-(2, 4, 3, 4, 4),
-(2, 2), (4, 4),
-(2, 3, 3, 3, 2),
-(4, 3),
-(4,)]
-
-```python
- size_dict
-``` {'a': 4, 'b': 2, 'c': 4, 'd': 2, 'e': 2, 'f': 4, 'g': 3, 'h': 4, 'i': 4, 'j': 3, 'k': 4, 'l': 2, 'm': 3, 'n': 3, 'o': 2, 'p': 2, 'q': 2, 'r': 4, 's': 3, 't': 4, 'u': 4, 'v': 2} 
+# Then, eq, shapes, and size_dict are:
+eq = 'gafoj,mpab,uhlbcdn,cqlipe,drstk,ve,fk,ongmq,hj,i->sturv'
+shapes = [(3, 4, 4, 2, 3), (3, 2, 4, 2), (4, 4, 2, 2, 4, 2, 3), (4, 2, 2, 4, 2, 2), (2, 4, 3, 4, 4), (2, 2), (4, 4), (2, 3, 3, 3, 2), (4, 3), (4,)]
+size_dict = {'a': 4, 'b': 2, 'c': 4, 'd': 2, 'e': 2, 'f': 4, 'g': 3, 'h': 4, 'i': 4, 'j': 3, 'k': 4, 'l': 2, 'm': 3, 'n': 3, 'o': 2, 'p': 2, 'q': 2, 'r': 4, 's': 3, 't': 4, 'u': 4, 'v': 2}
+``` 
 
 

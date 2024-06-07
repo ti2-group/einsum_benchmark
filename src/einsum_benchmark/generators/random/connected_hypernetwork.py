@@ -52,100 +52,73 @@ def connected_hypernetwork(
         Tuple[str, List[Tuple[int]], Optional[Dict[str, int]]]: The einsum expression string, the shapes of the tensors/arrays, and the dict of index sizes (only returned if ``return_size_dict=True``).
 
     Examples:
-        'usual' Tensor Hyper Networks
+    'usual' Tensor Hyper Networks
 
-        >>> eq, shapes, size_dict = random_tensor_hyper_network(
-            number_of_tensors=10,
-            regularity=2.5,
-            max_tensor_order=10,
-            max_edge_order=5,
-            number_of_output_indices=5,
-            min_axis_size=2,
-            max_axis_size=4,
-            return_size_dict=True,
-            seed=12345
-        )
-        >>> eq
-        'bdca,abhcdg,cbmd,cfd,ed,e,figj,gl,h,nik->jnmkl'
+    ```python
+    eq, shapes, size_dict = random_tensor_hyper_network(
+        number_of_tensors=10,
+        regularity=2.5,
+        max_tensor_order=10,
+        max_edge_order=5,
+        number_of_output_indices=5,
+        min_axis_size=2,
+        max_axis_size=4,
+        return_size_dict=True,
+        seed=12345
+    )
+    # Then, eq, shapes, and size_dict are:
+    eq = 'bdca,abhcdg,cbmd,cfd,ed,e,figj,gl,h,nik->jnmkl'
+    shapes = [(2, 2, 2, 2), (2, 2, 4, 2, 2, 3), (2, 2, 4, 2), (2, 2, 2), (2, 2), (2,), (2, 4, 3, 3), (3, 2), (4,), (3, 4, 3)]
+    size_dict = {'a': 2, 'b': 2, 'c': 2, 'd': 2, 'e': 2, 'f': 2, 'g': 3, 'h': 4, 'i': 4, 'j': 3, 'k': 3, 'l': 2, 'm': 4, 'n': 3}
+    ```
 
-        >>> shapes
-        [(2, 2, 2, 2),
-        (2, 2, 4, 2, 2, 3),
-        (2, 2, 4, 2),
-        (2, 2, 2),
-        (2, 2),
-        (2,),
-        (2, 4, 3, 3),
-        (3, 2),
-        (4,),
-        (3, 4, 3)]
+    Tensor Hyper Networks with self edges (of higher order), single summation indices, output indices of higher order and a global dimension
 
-        >>> size_dict
-        {'a': 2, 'b': 2, 'c': 2, 'd': 2, 'e': 2, 'f': 2, 'g': 3, 'h': 4, 'i': 4, 'j': 3, 'k': 3, 'l': 2, 'm': 4, 'n': 3}
+    ```python
+    eq, shapes = random_tensor_hyper_network(
+        number_of_tensors=10,
+        regularity=2.5,
+        max_tensor_order=5,
+        max_edge_order=6,
+        number_of_output_indices=5,
+        max_output_index_order=3,
+        number_of_self_edges=4,
+        max_self_edge_order=3,
+        number_of_single_summation_indices=3,
+        global_dim=True,
+        min_axis_size=2,
+        max_axis_size=4,
+        seed=12345
+    )
+    # Then, eq and shapes are:
+    eq = 'cabxk,gkegax,wldxbrb,ctoxdfo,xvdlv,weehx,nfnkx,spgpixqu,xjimhm,ijx->uvwtx'
+    shapes = [(3, 2, 4, 3, 2), (2, 2, 3, 2, 2, 3), (4, 4, 3, 3, 4, 3, 4), (3, 4, 3, 3, 3, 3, 3), (3, 3, 3, 4, 3), (4, 3, 3, 2, 3), (4, 3, 4, 2, 3), (3, 3, 2, 3, 2, 3, 2, 2), (3, 4, 2, 2, 2, 2), (2, 4, 3)]
+    ```
 
-        Tensor Hyper Networks with self edges (of higher order), single summation indices, output indices of higher order and a global dimension
-        >>> eq, shapes = random_tensor_hyper_network(
-            number_of_tensors=10,
-            regularity=2.5,
-            max_tensor_order=5,
-            max_edge_order=6,
-            number_of_output_indices=5,
-            max_output_index_order=3,
-            number_of_self_edges=4,
-            max_self_edge_order=3,
-            number_of_single_summation_indices=3,
-            global_dim=True,
-            min_axis_size=2,
-            max_axis_size=4,
-            seed=12345
-        )
-        >>> eq
-        'caxpp,afxeb,nbkxn,jdkxc,tdqxv,hxgre,jlxfi,xsgmm,howxo,xuijl->utvwx'
+    Tensor Hyper Networks as above but with diagonals in hyper edges and output indices
 
-        >>> shapes
-        [(2, 4, 4, 3, 3),
-        (4, 3, 4, 3, 3),
-        (3, 3, 2, 4, 3),
-        (2, 2, 2, 4, 2),
-        (2, 2, 2, 4, 3),
-        (4, 4, 2, 3, 3),
-        (2, 2, 4, 3, 3),
-        (4, 3, 2, 3, 3),
-        (4, 2, 2, 4, 2),
-        (4, 2, 3, 2, 2)]
-
-        Tensor Hyper Networks as above but with diagonals in hyper edges and output indices
-        >>> eq, shapes = random_tensor_hyper_network(
-            number_of_tensors=10,
-            regularity=3.0,
-            max_tensor_order=10,
-            max_edge_order=3,
-            diagonals_in_hyper_edges=True,
-            number_of_output_indices=5,
-            max_output_index_order=3,
-            diagonals_in_output_indices=True,
-            number_of_self_edges=4,
-            max_self_edge_order=3,
-            number_of_single_summation_indices=3,
-            global_dim=True,
-            min_axis_size=2,
-            max_axis_size=4,
-            seed=12345
-        )
-        >>> eq
-        'cabxk,gkegax,wldxbrb,ctoxdfo,xvdlv,weehx,nfnkx,spgpixqu,xjimhm,ijx->uvwtx'
-
-        >>> shapes
-        [(3, 2, 4, 3, 2),
-        (2, 2, 3, 2, 2, 3),
-        (4, 4, 3, 3, 4, 3, 4),
-        (3, 4, 3, 3, 3, 3, 3),
-        (3, 3, 3, 4, 3),
-        (4, 3, 3, 2, 3),
-        (4, 3, 4, 2, 3),
-        (3, 3, 2, 3, 2, 3, 2, 2),
-        (3, 4, 2, 2, 2, 2),
-        (2, 4, 3)]
+    ```python
+    eq, shapes = random_tensor_hyper_network(
+        number_of_tensors=10,
+        regularity=3.0,
+        max_tensor_order=10,
+        max_edge_order=3,
+        diagonals_in_hyper_edges=True,
+        number_of_output_indices=5,
+        max_output_index_order=3,
+        diagonals_in_output_indices=True,
+        number_of_self_edges=4,
+        max_self_edge_order=3,
+        number_of_single_summation_indices=3,
+        global_dim=True,
+        min_axis_size=2,
+        max_axis_size=4,
+        seed=12345
+    )
+    # Then, eq and shapes are:
+    eq = 'cabxk,gkegax,wldxbrb,ctoxdfo,xvdlv,weehx,nfnkx,spgpixqu,xjimhm,ijx->uvwtx'
+    shapes = [(3, 2, 4, 3, 2), (2, 2, 3, 2, 2, 3), (4, 4, 3, 3, 4, 3, 4), (3, 4, 3, 3, 3, 3, 3), (3, 3, 3, 4, 3), (4, 3, 3, 2, 3), (4, 3, 4, 2, 3), (3, 3, 2, 3, 2, 3, 2, 2), (3, 4, 2, 2, 2, 2), (2, 4, 3)]
+    ```
     """
 
     # handle inputs
