@@ -32,6 +32,8 @@ print("sum[OUTPUT]:", result.sum(), instance.result_sum)
 
 For more information please read our [docs](https://benchmark.einsum.org/docs/guides/getting-started/).
 
+The code for our experiments is here: https://github.com/ti2-group/einsum_benchmark_experiments
+
 ## Acknowledgements
 
 The broader data collection process included contributions from individuals whose data was transformed. We duly acknowledge the following for making their data publicly available:
