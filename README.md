@@ -46,7 +46,7 @@ The broader data collection process included contributions from individuals whos
 Moreover, we thank the following authors of open source software used to generated instances:
 
 - **Gray, Johnnie**: [quimb](https://quimb.readthedocs.io/en/latest/index.html), [cotengra](https://cotengra.readthedocs.io/en/latest/)
-- **Soos, Mate, Meel, Kuldeep S**:[Arjun](https://github.com/meelgroup/arjun)
+- **Soos, Mate, Meel, Kuldeep S**: [Arjun](https://github.com/meelgroup/arjun)
 - **Stoian, Mihail**: [Netzwerk](https://github.com/stoianmihail/Netzwerk)
 - **Liu, Jinguo; Lua, Xiuzhe; Wang, Lei**: [Yao.jl](https://github.com/QuantumBFS/Yao.jl)
 - **Liu, Jinguo**: [YaoToEinsum.jl](https://github.com/QuantumBFS/YaoToEinsum.jl)
