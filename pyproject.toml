@@ -1,6 +1,6 @@
 [project]
 name = "einsum_benchmark"
-version = "0.1.2"
+version = "0.1.4"
 description = "Wrapper package for the einsum benchmark dataset and code to create new instances of the various types used in the benchmark"
 authors = [
     { name = "Christoph Staudt", email = "christoph.staudt@uni-jena.de" },
@@ -24,3 +24,13 @@ build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
+
+[tool.pdm.scripts]
+docs = "lazydocs src/einsum_benchmark/ --validate --no-watermark --ignored-sub-modules converters,meta,generators.quantum_computing,generators.random,generators.structured,generators.language_model --ignored-modules random,randreg,util,instances --src-base-url https://github.com/ti2-group/einsum_benchmark/blob/main/"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "-e file:///${PROJECT_ROOT}/../lazydocs#egg=lazydocs",
+    "pydocstyle>=6.3.0",
+    "inari>=0.2.1",
+]
