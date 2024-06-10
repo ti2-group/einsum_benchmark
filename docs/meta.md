@@ -9,7 +9,40 @@
 
 ---
 
-<a href="https://github.com/ti2-group/einsum_benchmark/blob/main/src/einsum_benchmark/meta/__init__.py#L29"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square" /></a>
+<a href="https://github.com/ti2-group/einsum_benchmark/blob/main/src/einsum_benchmark/meta/runtime.py#L9"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square" /></a>
+
+## <kbd>function</kbd> `to_ssa_path`
+
+```python
+def to_ssa_path(linear_path)
+```
+
+Convert a linear contraction path to the Single Static Assignment (SSA) form. 
+
+
+
+**Args:**
+ 
+ - <b>`linear_path`</b> (list):  A list of tuples representing the linear contraction path. 
+
+
+
+**Returns:**
+ 
+ - <b>`list`</b>:  A list of tuples representing the SSA form of the contraction path. 
+
+
+
+**Raises:**
+ 
+ - <b>`RuntimeError`</b>:  If the path contains negative indices. 
+ - <b>`RuntimeError`</b>:  If the path cannot be converted to SSA form. 
+ - <b>`RuntimeError`</b>:  If the path contains repeating indices within a contraction pair. 
+
+
+---
+
+<a href="https://github.com/ti2-group/einsum_benchmark/blob/main/src/einsum_benchmark/meta/__init__.py#L31"><img align="right" style="float:right;" src="https://img.shields.io/badge/-source-cccccc?style=flat-square" /></a>
 
 ## <kbd>function</kbd> `find_path`
 

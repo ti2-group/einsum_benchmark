@@ -2,6 +2,7 @@ import importlib.util
 import subprocess
 from typing import Optional, Literal, List, Hashable, Dict, Tuple
 from .runtime import (
+    to_ssa_path,
     jensum,
     jensum_meta,
     to_annotated_ssa_path,
@@ -14,6 +15,7 @@ __all__ = [
     "find_path",
     "jensum",
     "jensum_meta",
+    "to_ssa_path",
     "to_annotated_ssa_path",
     "linear_path_runtime_meta",
     "get_ops_and_max_size",

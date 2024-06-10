@@ -6,7 +6,7 @@ import math
 import time
 
 
-def _to_ssa_path(linear_path):
+def to_ssa_path(linear_path):
     """Convert a linear contraction path to the Single Static Assignment (SSA) form.
 
     Args:
@@ -411,7 +411,7 @@ def linear_path_runtime_meta(format_string, linear_path, *arguments, debug=False
             the execution time, the minimum density, and the average density.
 
     """
-    ssa_path = _to_ssa_path(linear_path)
+    ssa_path = to_ssa_path(linear_path)
     annotated_ssa_path = to_annotated_ssa_path(
         format_string, ssa_path=ssa_path, is_ascii=True
     )
