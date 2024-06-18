@@ -51,12 +51,17 @@ def find_path(
     Returns:
         str: An ssa path for evaluating the einsum expression.
     """
-    if importlib.util.find_spec("kahypar") is None:
-        print("kahypar is not installed. Please install kahypar and cgreedy")
-        return None
-    if importlib.util.find_spec("cgreedy") is None:
-        print("cgreedy is not installed")
-        return None
+    if (
+        importlib.util.find_spec("kahypar") is None
+        or importlib.util.find_spec("cgreedy") is None
+        or importlib.util.find_spec("optuna") is None
+    ):
+        raise ImportError(
+            """You need to install the optional dependencies for path to use this function
+            
+            You can do this with pip install "einsum_benchmark[path]"
+            """
+        )
 
     from . import path_finder
 

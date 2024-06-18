@@ -127,9 +127,6 @@ def connected_hypernetwork(
     ), f"number_of_tensors {number_of_tensors} has to be non-negative."
     assert regularity >= 0, f"regularity {regularity} has to be non-negative."
     assert (
-        max_tensor_order >= 0
-    ), f"max_tensor_order {max_tensor_order} has to be non-negative."
-    assert (
         max_edge_order >= 0
     ), f"max_edge_order {max_edge_order} has to be non-negative."
     assert (
@@ -146,6 +143,10 @@ def connected_hypernetwork(
             + number_of_output_indices * max_output_index_order
             + number_of_single_summation_indices
         )  # in the worst case, everything gets attached to one tensor
+
+    assert (
+        max_tensor_order >= 0
+    ), f"max_tensor_order {max_tensor_order} has to be non-negative."
 
     # check if tensors make sense
     assert (

@@ -1,6 +1,6 @@
 [project]
 name = "einsum_benchmark"
-version = "0.1.5"
+version = "0.1.7"
 description = "Wrapper package for the einsum benchmark dataset and code to create new instances of the various types used in the benchmark"
 authors = [
     { name = "Christoph Staudt", email = "christoph.staudt@uni-jena.de" },
