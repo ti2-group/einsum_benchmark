@@ -281,4 +281,4 @@ Can be used to validate the correctness of an einsum implementation.
 
 ## Example instances
 
-We discuss some example instances from the benchmark data set [here](./examples/metadata.ipynb).
+We discuss some example instances from the benchmark dataset [here](./examples/metadata.ipynb).
