@@ -93,7 +93,7 @@ Our example has the 4 unique indices i,j,k, and l.
 
 An example format string containing a Hadamard product would be `ij,ij,jkl->il`, because there are two tensors with the indices i and j.
 
-Hadamard products can be calculated right a way and thus decrease the number of relevant tensors for path computations or any arithmetical evaluation of the tensor network. However many implementations do not take advantage of this fact.
+Hadamard products can be calculated right away and thus decrease the number of relevant tensors for path computations or any arithmetical evaluation of the tensor network. However many implementations do not take advantage of this fact.
 
  
 #### `edges`
@@ -136,7 +136,7 @@ Some einsum implementations do not support diagonals or traces, so they can only
 
 Independent components can be treated separately, which has a high potential for optimization and parallelization. In each component all nodes are connected by a path via edges. We only consider edges, i.e. indices not part of the output, when searching for independent components. Therefore, tensors that are only connected via indices that are part of the output are considered independent.
 
-If we adjust the example graph to make j and output index as well, we get two independent components, one containing only A and one containing B and C.
+If we adjust the example graph to make j an output index as well, we get two independent components, one containing only A and one containing B and C.
 
 ```mermaid
 flowchart LR
@@ -180,7 +180,7 @@ As independent components can be treated separately the real complexity of a ten
 In our example smallest dimension size is 2.
 
 A large smallest index indicates that the individual tensors may also be large.
-Many problems have the same size for all dimensions. This becomes apparent when looking at the largest dimension size as well.
+Many problems have the same size for all dimensions. This becomes apparent when looking at the largest dimension size as well. Moreover, some instances have dimensions with size 1 which may be interesting for optimizations.
 
 #### `largest_dimension_size`
 
@@ -189,7 +189,7 @@ Many problems have the same size for all dimensions. This becomes apparent when 
 In our example the largest dimension size is 8.
 
 A small largest dimension size indicates that the tensors in the network are rather small.
-Many problems have the same size for all dimensions. This becomes apparent when looking at the smallest dimension size as well. Moreover, some instances have dimensions with size 1 which may be interesting for optimizations.
+Many problems have the same size for all dimensions. This becomes apparent when looking at the smallest dimension size as well.
 
 
 #### `log2_output_size`
