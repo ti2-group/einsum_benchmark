@@ -4,7 +4,7 @@ Benchmark data repository accompanying the paper: "Einsum Benchmark: Enabling th
 
 ## Installation
 
-Install our base package, you will need at least python 3.10:
+Install the base package with Python 3.10 through 3.14:
 
 ```bash
 pip install einsum_benchmark
